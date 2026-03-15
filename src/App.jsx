@@ -306,6 +306,23 @@ function App() {
 
           <Schedule schedule={schedule} />
 
+        <Box
+  sx={{
+    mt: 8,
+    pt: 3,
+    borderTop: "1px solid",
+    borderColor: "divider",
+    textAlign: "center"
+  }}
+>
+  <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "'Space Mono', monospace" }}>
+    © 2026 TimeMax — Built by Suzanne Daniel Thomas
+  </Typography>
+  <Typography variant="caption" color="text.secondary" display="block" mt={0.5}>
+    A learning project · All rights reserved · Not for commercial use
+  </Typography>
+</Box>
+
         </Container>
       </Box>
     </ThemeProvider>
