@@ -1,16 +1,24 @@
-# React + Vite
+# TimeMax 
+An AI-powered timetable manager that builds a personalized day-by-day schedule around your real commitments.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Live App
+[timemax-timetable.vercel.app](https://timemax-timetable.vercel.app)
 
-Currently, two official plugins are available:
+## Features
+- Add tasks with deadlines, effort and energy levels
+- Set your planning period and start time
+- Choose your focus duration (15 / 25 / 45 / 90 min)
+- Describe your commitments in plain English
+- AI generates a full time-blocked schedule with tips and warnings
+- Dark / light mode
+- Mobile responsive
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Built With
+- React + Vite
+- Material UI (MUI)
+- Framer Motion
+- Google Gemini 2.5 Flash API
+- Deployed on Vercel
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Author
+Built by Suzanne Daniel Thomas — a learning project.
