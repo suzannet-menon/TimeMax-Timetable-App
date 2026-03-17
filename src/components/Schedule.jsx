@@ -57,86 +57,97 @@ function Schedule({ schedule }) {
       )}
 
       <AnimatePresence>
-        {schedule.days?.map((day, dayIndex) => (
-          <motion.div
-            key={dayIndex}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: dayIndex * 0.1 }}
-          >
-            <Box mb={4}>
-              <Box
-                sx={{
-                  display: "inline-block",
-                  px: 2,
-                  py: 0.5,
-                  mb: 2,
-                  borderRadius: "999px",
-                  background: "primary.main",
-                  bgcolor: "#2563eb",
-                  color: "white",
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  fontWeight="700"
-                  sx={{ fontFamily: "'Space Mono', monospace", color: "white" }}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            overflowX: "auto",
+            gap: 2,
+            pb: 2,
+            alignItems: "flex-start",
+          }}
+        >
+          {schedule.days?.map((day, dayIndex) => (
+            <motion.div
+              key={dayIndex}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: dayIndex * 0.1 }}
+              style={{ minWidth: "260px", flex: "0 0 auto" }}
+            >
+              <Box>
+                <Box
+                  sx={{
+                    display: "inline-block",
+                    px: 2,
+                    py: 0.5,
+                    mb: 2,
+                    borderRadius: "999px",
+                    bgcolor: "#2563eb",
+                    color: "white",
+                  }}
                 >
-                  {day.date}
-                </Typography>
-              </Box>
-
-              <Box display="flex" flexDirection="column" gap={1.5}>
-                {day.schedule?.map((block, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: dayIndex * 0.1 + i * 0.07 }}
+                  <Typography
+                    variant="body2"
+                    fontWeight="700"
+                    sx={{ fontFamily: "'Space Mono', monospace", color: "white" }}
                   >
-                    <Card
-                      variant="outlined"
-                      sx={{
-                        borderLeft: block.task.toLowerCase().includes("break")
-                          ? "4px solid #9e9e9e"
-                          : "4px solid #2563eb",
-                      }}
+                    {day.date}
+                  </Typography>
+                </Box>
+
+                <Box display="flex" flexDirection="column" gap={1.5}>
+                  {day.schedule?.map((block, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: dayIndex * 0.1 + i * 0.07 }}
                     >
-                      <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
-                        <Box display="flex" alignItems="center" gap={1.5} mb={0.5} flexWrap="wrap">
-                          <Chip
-                            label={block.time}
-                            size="small"
-                            color="primary"
-                            variant="outlined"
-                            sx={{ fontFamily: "'Space Mono', monospace", fontSize: "11px" }}
-                          />
-                          <Typography
-                            fontWeight="600"
-                            sx={{ fontFamily: "'Space Mono', monospace", fontSize: "13px" }}
-                          >
-                            {block.task}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {block.duration}
-                          </Typography>
-                        </Box>
-                        {block.tip && (
-                          <>
-                            <Divider sx={{ my: 0.5 }} />
-                            <Typography variant="body2" color="text.secondary">
-                              💡 {block.tip}
+                      <Card
+                        variant="outlined"
+                        sx={{
+                          borderLeft: block.task.toLowerCase().includes("break")
+                            ? "4px solid #9e9e9e"
+                            : "4px solid #2563eb",
+                        }}
+                      >
+                        <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
+                          <Box display="flex" alignItems="center" gap={1.5} mb={0.5} flexWrap="wrap">
+                            <Chip
+                              label={block.time}
+                              size="small"
+                              color="primary"
+                              variant="outlined"
+                              sx={{ fontFamily: "'Space Mono', monospace", fontSize: "11px" }}
+                            />
+                            <Typography
+                              fontWeight="600"
+                              sx={{ fontFamily: "'Space Mono', monospace", fontSize: "13px" }}
+                            >
+                              {block.task}
                             </Typography>
-                          </>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
+                            <Typography variant="caption" color="text.secondary">
+                              {block.duration}
+                            </Typography>
+                          </Box>
+                          {block.tip && (
+                            <>
+                              <Divider sx={{ my: 0.5 }} />
+                              <Typography variant="body2" color="text.secondary">
+                                💡 {block.tip}
+                              </Typography>
+                            </>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </Box>
               </Box>
-            </Box>
-          </motion.div>
-        ))}
+            </motion.div>
+          ))}
+        </Box>
       </AnimatePresence>
     </Box>
   )
