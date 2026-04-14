@@ -1,9 +1,6 @@
 # TimeMax 
 An AI-powered timetable manager that builds a personalized day-by-day schedule around your real commitments.
 
-## Live App
-[timemax-timetable.vercel.app](https://timemax-timetable.vercel.app)
-
 ## Features
 - Add tasks with deadlines, effort and energy levels
 - Set your planning period and start time
