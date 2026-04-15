@@ -6,40 +6,38 @@ import { motion } from "framer-motion"
 
 function AvailabilityForm({ availability, setAvailability }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-    >
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
       <Box>
         <Typography
-          variant="h6"
+          variant="subtitle1"
           fontWeight="700"
-          mb={1}
+          mb={0.5}
           sx={{ fontFamily: "'Space Mono', monospace" }}
         >
-          My Day Today
+          Availability Windows
         </Typography>
+
         <Typography variant="body2" color="text.secondary" mb={2}>
-          Describe your commitments and free windows. The AI will only schedule tasks during your free time.
+          If you want tighter planning, describe your free windows directly.
         </Typography>
+
         <TextField
           multiline
-          rows={7}
-          fullWidth
-          placeholder={`Example:\n9:00am – 11:00am: College lectures\n11:00am – 12:00pm: Free\n1:00pm – 2:00pm: Lunch\n2:00pm – 4:00pm: Free\n6:00pm onwards: Family time, not available`}
+          rows={6}
+          placeholder={`Example:
+9:00am – 11:00am: College lectures
+11:00am – 12:00pm: Free
+1:00pm – 2:00pm: Lunch
+2:00pm – 4:00pm: Free
+6:00pm onwards: Family time`}
           value={availability}
           onChange={(e) => setAvailability(e.target.value)}
-          variant="outlined"
         />
+
         {availability?.trim() && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
             <Alert severity="success" sx={{ mt: 2 }}>
-              ✓ Availability saved — the AI will respect this when building your schedule!
+              Availability saved — the AI can use these time windows.
             </Alert>
           </motion.div>
         )}

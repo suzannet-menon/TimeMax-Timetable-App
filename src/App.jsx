@@ -1,31 +1,51 @@
-import { useState, useMemo } from "react"
-import Box from "@mui/material/Box"
-import Typography from "@mui/material/Typography"
-import Tabs from "@mui/material/Tabs"
-import Tab from "@mui/material/Tab"
-import Alert from "@mui/material/Alert"
-import Container from "@mui/material/Container"
-import IconButton from "@mui/material/IconButton"
-import TextField from "@mui/material/TextField"
-import { createTheme, ThemeProvider } from "@mui/material/styles"
+import { ThemeProvider, createTheme } from "@mui/material/styles"
 import CssBaseline from "@mui/material/CssBaseline"
-import DarkModeIcon from "@mui/icons-material/DarkMode"
-import LightModeIcon from "@mui/icons-material/LightMode"
+import { useMemo, useState } from "react"
+import Box from "@mui/material/Box"
+import Stack from "@mui/material/Stack"
+import Paper from "@mui/material/Paper"
+import Chip from "@mui/material/Chip"
+import Button from "@mui/material/Button"
+import Typography from "@mui/material/Typography"
+import TextField from "@mui/material/TextField"
+import IconButton from "@mui/material/IconButton"
+import Alert from "@mui/material/Alert"
+import Divider from "@mui/material/Divider"
+import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded"
+import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded"
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded"
+import BoltRoundedIcon from "@mui/icons-material/BoltRounded"
+import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded"
+import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded"
+import ChecklistRoundedIcon from "@mui/icons-material/ChecklistRounded"
+import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded"
 import { motion } from "framer-motion"
+
 import FocusPicker from "./components/FocusPicker"
 import TaskForm from "./components/TaskForm"
 import TaskList from "./components/TaskList"
-import Schedule from "./components/Schedule"
 import CommitmentsForm from "./components/CommitmentsForm"
+import AvailabilityForm from "./components/AvailabilityForm"
+import Schedule from "./components/Schedule"
 import { fetchSchedule } from "./utils/api"
+
+import "./App.css"
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: (i = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.12, duration: 0.5, ease: "easeOut" }
-  })
+    transition: { delay: i * 0.07, duration: 0.45, ease: "easeOut" },
+  }),
+}
+
+function MotionSection({ children, custom = 0 }) {
+  return (
+    <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={custom}>
+      {children}
+    </motion.div>
+  )
 }
 
 function App() {
@@ -39,74 +59,122 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [commitments, setCommitments] = useState("")
+  const [availability, setAvailability] = useState("")
   const [darkMode, setDarkMode] = useState(false)
 
   const now = new Date()
   const todayStr = now.toISOString().split("T")[0]
-  const defaultStartTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`
+  const defaultStartTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+    now.getMinutes()
+  ).padStart(2, "0")}`
+
   const [startTime, setStartTime] = useState(defaultStartTime)
   const [dateFrom, setDateFrom] = useState(todayStr)
   const [dateTo, setDateTo] = useState(todayStr)
 
-  const theme = useMemo(() => createTheme({
-    palette: {
-      mode: darkMode ? "dark" : "light",
-      primary: { main: "#2563eb" },
-      background: {
-        default: darkMode ? "#0f172a" : "#ffffff",
-        paper: darkMode ? "#1e293b" : "#ffffff",
-      }
-    },
-    typography: {
-      fontFamily: "'Roboto', sans-serif",
-    },
-    components: {
-      MuiContainer: {
-        styleOverrides: {
-          root: {
-            paddingLeft: "16px",
-            paddingRight: "16px",
-          }
-        }
-      }
-    }
-  }), [darkMode])
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: darkMode ? "dark" : "light",
+          primary: { main: "#2563eb" },
+          background: {
+            default: darkMode ? "#0b1220" : "#f6f9ff",
+            paper: darkMode ? "#111827" : "#ffffff",
+          },
+          text: {
+            primary: darkMode ? "#e5e7eb" : "#0f172a",
+            secondary: darkMode ? "#94a3b8" : "#475569",
+          },
+        },
+        shape: {
+          borderRadius: 18,
+        },
+        typography: {
+          fontFamily: "'Roboto', sans-serif",
+          h1: { fontFamily: "'Space Mono', monospace", fontWeight: 700 },
+          h2: { fontFamily: "'Space Mono', monospace", fontWeight: 700 },
+          h3: { fontFamily: "'Space Mono', monospace", fontWeight: 700 },
+          h4: { fontFamily: "'Space Mono', monospace", fontWeight: 700 },
+          h5: { fontFamily: "'Space Mono', monospace", fontWeight: 700 },
+          h6: { fontFamily: "'Space Mono', monospace", fontWeight: 700 },
+          button: { textTransform: "none", fontWeight: 700 },
+        },
+        components: {
+          MuiButton: {
+            defaultProps: { disableElevation: true },
+            styleOverrides: {
+              root: {
+                borderRadius: 999,
+                fontFamily: "'Space Mono', monospace",
+              },
+            },
+          },
+          MuiPaper: {
+            styleOverrides: {
+              root: {
+                backgroundImage: "none",
+              },
+            },
+          },
+          MuiTextField: {
+            defaultProps: {
+              fullWidth: true,
+              size: "small",
+            },
+          },
+          MuiChip: {
+            styleOverrides: {
+              root: {
+                borderRadius: 999,
+              },
+            },
+          },
+        },
+      }),
+    [darkMode]
+  )
 
   const addtask = () => {
-    if (!taskname) return
-    const newtask = { taskname, deadline, effort, energy }
-    setTasks([...tasks, newtask])
+    if (!taskname.trim()) return
+    const newTask = { taskname, deadline, effort, energy }
+    setTasks((prev) => [...prev, newTask])
     setTaskname("")
     setDeadline("")
   }
 
   const removetask = (index) => {
-    setTasks(tasks.filter((_, i) => i !== index))
+    setTasks((prev) => prev.filter((_, i) => i !== index))
   }
 
   const edittask = (index, updatedTask) => {
-    const updated = [...tasks]
-    updated[index] = updatedTask
-    setTasks(updated)
+    setTasks((prev) => {
+      const next = [...prev]
+      next[index] = updatedTask
+      return next
+    })
   }
 
   const generateschedule = async () => {
-    if (loading) return
+    if (loading || tasks.length === 0) return
+
+    const combinedContext = [commitments, availability ? `Availability:\n${availability}` : ""]
+      .filter(Boolean)
+      .join("\n\n")
+
     setLoading(true)
     setError(null)
     setSchedule(null)
+
     try {
-      const result = await fetchSchedule(
-        tasks,
-        focusminutes,
-        commitments,
-        startTime,
-        { from: dateFrom, to: dateTo }
-      )
+      const result = await fetchSchedule(tasks, focusminutes, combinedContext, startTime, {
+        from: dateFrom,
+        to: dateTo,
+      })
       setSchedule(result)
     } catch (err) {
       console.error(err)
-      setError(err.message)
+      setError(err.message || "Something went wrong while generating your schedule.")
     } finally {
       setLoading(false)
     }
@@ -115,216 +183,251 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        sx={{
-          minHeight: "100vh",
-          position: "relative",
-          "&::before": {
-            content: '""',
-            position: "fixed",
-            inset: 0,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
-            backgroundRepeat: "repeat",
-            backgroundSize: "200px 200px",
-            opacity: darkMode ? 0.04 : 0.025,
-            pointerEvents: "none",
-            zIndex: 0,
-          }
-        }}
-      >
-        <Container maxWidth="md" sx={{ py: { xs: 3, md: 6 }, position: "relative", zIndex: 1 }}>
 
-          {/* HEADER */}
-          <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0}>
-            <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
-              <Box>
+      <div className="app-shell">
+        <div className="app-frame">
+          <MotionSection custom={0}>
+            <div className="app-topbar">
+              <div className="app-brand-card">
+                <div className="app-brand-row">
+                  <Box>
+                    <Stack direction="row" spacing={1.1} alignItems="center" flexWrap="wrap">
+                      <Chip
+                        label="AI timetable manager"
+                        sx={{
+                          bgcolor: darkMode ? "rgba(37,99,235,0.18)" : "#dbeafe",
+                          color: "#2563eb",
+                          fontWeight: 700,
+                          fontFamily: "'Space Mono', monospace",
+                        }}
+                      />
+                      <Chip
+                        label={darkMode ? "Dark mode" : "Light mode"}
+                        variant="outlined"
+                        sx={{ fontFamily: "'Space Mono', monospace" }}
+                      />
+                    </Stack>
+
+                    <Typography className="app-title">TimeMax</Typography>
+
+                    <Typography className="app-subtitle">
+                      Build practical schedules around your real day. Add tasks, enter deadlines,
+                      describe commitments, set focus windows, and let AI plan something realistic.
+                    </Typography>
+                  </Box>
+
+                  <IconButton
+                    onClick={() => setDarkMode((prev) => !prev)}
+                    sx={{
+                      border: "1px solid",
+                      borderColor: "divider",
+                      bgcolor: "background.paper",
+                      width: 48,
+                      height: 48,
+                    }}
+                  >
+                    {darkMode ? <LightModeRoundedIcon /> : <DarkModeRoundedIcon />}
+                  </IconButton>
+                </div>
+              </div>
+
+              <div className="app-stat-card">
                 <Typography
-                  fontWeight="700"
                   sx={{
                     fontFamily: "'Space Mono', monospace",
-                    letterSpacing: "-1px",
-                    fontSize: { xs: "28px", md: "40px" }
+                    fontSize: "0.85rem",
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                    opacity: 0.82,
+                    mb: 1.5,
                   }}
                 >
-                  TimeMax
+                  Session overview
                 </Typography>
-                <Typography variant="body2" color="text.secondary" mt={0.5}>
-                  AI-powered scheduling around your real day.
-                </Typography>
-              </Box>
-              <IconButton onClick={() => setDarkMode(!darkMode)} sx={{ mt: 1 }}>
-                {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
-              </IconButton>
-            </Box>
-          </motion.div>
 
-          {/* DATE RANGE + START TIME */}
-          <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={1}>
-            <Box
-              sx={{
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: "12px",
-                p: { xs: 2, md: 2.5 },
-                mt: 3,
-                mb: 3,
-                bgcolor: darkMode ? "#1e293b" : "#f8fafc"
-              }}
-            >
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                fontWeight="600"
-                display="block"
-                mb={1.5}
-                sx={{ fontFamily: "'Space Mono', monospace", letterSpacing: "1px" }}
-              >
-                PLANNING PERIOD
-              </Typography>
-              <Box
-                display="flex"
-                flexWrap="wrap"
-                gap={2}
-                alignItems="center"
-              >
-                <Box>
-                  <Typography variant="caption" color="text.secondary" display="block" mb={0.5}>
-                    From
-                  </Typography>
-                  <TextField
-                    type="date"
-                    size="small"
-                    value={dateFrom}
-                    onChange={(e) => setDateFrom(e.target.value)}
-                    sx={{ width: { xs: "100%", sm: "160px" } }}
-                  />
-                </Box>
-                <Box>
-                  <Typography variant="caption" color="text.secondary" display="block" mb={0.5}>
-                    To
-                  </Typography>
-                  <TextField
-                    type="date"
-                    size="small"
-                    value={dateTo}
-                    onChange={(e) => setDateTo(e.target.value)}
-                    sx={{ width: { xs: "100%", sm: "160px" } }}
-                  />
-                </Box>
-                <Box>
-                  <Typography variant="caption" color="text.secondary" display="block" mb={0.5}>
-                    Start time on first day
-                  </Typography>
-                  <TextField
-                    type="time"
-                    size="small"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    sx={{ width: { xs: "100%", sm: "140px" } }}
-                  />
-                </Box>
-              </Box>
-            </Box>
-          </motion.div>
+                <Stack spacing={1.25}>
+                  <Paper elevation={0} sx={{ p: 1.5, bgcolor: "rgba(255,255,255,0.12)", color: "white" }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                      <Typography>Tasks</Typography>
+                      <Typography fontWeight={700}>{tasks.length}</Typography>
+                    </Stack>
+                  </Paper>
 
-          {/* FOCUS PICKER */}
-          <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={2}>
-            <FocusPicker focusminutes={focusminutes} setFocusminutes={setFocusminutes} />
-          </motion.div>
+                  <Paper elevation={0} sx={{ p: 1.5, bgcolor: "rgba(255,255,255,0.12)", color: "white" }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                      <Typography>Focus block</Typography>
+                      <Typography fontWeight={700}>{focusminutes} min</Typography>
+                    </Stack>
+                  </Paper>
 
-          {/* TASK FORM */}
-          <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3}>
-            <TaskForm
-              taskname={taskname} setTaskname={setTaskname}
-              deadline={deadline} setDeadline={setDeadline}
-              effort={effort} setEffort={setEffort}
-              energy={energy} setEnergy={setEnergy}
-              addtask={addtask}
-            />
-          </motion.div>
+                  <Paper elevation={0} sx={{ p: 1.5, bgcolor: "rgba(255,255,255,0.12)", color: "white" }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                      <Typography>Planning range</Typography>
+                      <Typography fontWeight={700}>{dateFrom === dateTo ? "1 day" : "Custom"}</Typography>
+                    </Stack>
+                  </Paper>
+                </Stack>
+              </div>
+            </div>
+          </MotionSection>
 
-          {/* TASK LIST */}
-          <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={4}>
-            <TaskList
-              tasks={tasks}
-              removetask={removetask}
-              edittask={edittask}
-              generateschedule={generateschedule}
-              loading={loading}
-            />
-          </motion.div>
+          <div className="app-grid">
+            <div className="app-main-column">
+              <MotionSection custom={1}>
+                <div className="panel-card">
+                  <div className="panel-card-inner">
+                    <div className="panel-eyebrow">Planning period</div>
+                    <div className="panel-heading-row">
+                      <CalendarMonthRoundedIcon sx={{ color: "#2563eb" }} />
+                      <Typography variant="h6">Set the time window</Typography>
+                    </div>
 
-          {/* COMMITMENTS */}
-          <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={5}>
-            <CommitmentsForm
-              commitments={commitments}
-              setCommitments={setCommitments}
-            />
-          </motion.div>
+                    <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+                      <Box flex={1}>
+                        <Typography variant="caption" color="text.secondary" display="block" mb={0.75}>
+                          From
+                        </Typography>
+                        <TextField type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+                      </Box>
 
-          {/* BUILD SCHEDULE BUTTON */}
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={6}
-          >
-            {tasks.length > 0 && (
-              <motion.div whileTap={{ scale: 0.97 }}>
-                <Box
-                  component="button"
-                  onClick={generateschedule}
-                  disabled={loading}
-                  sx={{
-                    width: "100%",
-                    py: 2,
-                    border: "none",
-                    borderRadius: "12px",
-                    bgcolor: loading ? "#93c5fd" : "#2563eb",
-                    color: "white",
-                    fontSize: { xs: "14px", md: "16px" },
-                    fontWeight: "700",
-                    fontFamily: "'Space Mono', monospace",
-                    cursor: loading ? "not-allowed" : "pointer",
-                    transition: "background 0.2s",
-                    "&:hover": {
-                      bgcolor: loading ? "#93c5fd" : "#1d4ed8"
-                    }
-                  }}
-                >
-                  {loading ? "⏳ Generating your schedule..." : "✨ Build My Schedule"}
-                </Box>
-              </motion.div>
-            )}
-          </motion.div>
+                      <Box flex={1}>
+                        <Typography variant="caption" color="text.secondary" display="block" mb={0.75}>
+                          To
+                        </Typography>
+                        <TextField type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+                      </Box>
 
-          {error && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              {error}
-            </Alert>
-          )}
+                      <Box flex={1}>
+                        <Typography variant="caption" color="text.secondary" display="block" mb={0.75}>
+                          Start time on first day
+                        </Typography>
+                        <TextField type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+                      </Box>
+                    </Stack>
+                  </div>
+                </div>
+              </MotionSection>
 
-          <Schedule schedule={schedule} />
+              <MotionSection custom={2}>
+                <div className="panel-card">
+                  <div className="panel-card-inner">
+                    <div className="panel-eyebrow">Focus setup</div>
+                    <div className="panel-heading-row">
+                      <BoltRoundedIcon sx={{ color: "#2563eb" }} />
+                      <Typography variant="h6">Choose how you work best</Typography>
+                    </div>
+                    <FocusPicker focusminutes={focusminutes} setFocusminutes={setFocusminutes} />
+                  </div>
+                </div>
+              </MotionSection>
 
-        <Box
-  sx={{
-    mt: 8,
-    pt: 3,
-    borderTop: "1px solid",
-    borderColor: "divider",
-    textAlign: "center"
-  }}
->
-  <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "'Space Mono', monospace" }}>
-    © 2026 TimeMax — Built by Suzanne Daniel Thomas
-  </Typography>
-  <Typography variant="caption" color="text.secondary" display="block" mt={0.5}>
-    A learning project · All rights reserved · Not for commercial use
-  </Typography>
-</Box>
+              <MotionSection custom={3}>
+                <div className="panel-card">
+                  <div className="panel-card-inner">
+                    <div className="panel-eyebrow">Tasks</div>
+                    <div className="panel-heading-row">
+                      <AssignmentRoundedIcon sx={{ color: "#2563eb" }} />
+                      <Typography variant="h6">Add what needs to get done</Typography>
+                    </div>
+                    <TaskForm
+                      taskname={taskname}
+                      setTaskname={setTaskname}
+                      deadline={deadline}
+                      setDeadline={setDeadline}
+                      effort={effort}
+                      setEffort={setEffort}
+                      energy={energy}
+                      setEnergy={setEnergy}
+                      addtask={addtask}
+                    />
+                  </div>
+                </div>
+              </MotionSection>
 
-        </Container>
-      </Box>
+              <MotionSection custom={4}>
+                <div className="panel-card">
+                  <div className="panel-card-inner">
+                    <div className="panel-eyebrow">Current workload</div>
+                    <div className="panel-heading-row">
+                      <ChecklistRoundedIcon sx={{ color: "#2563eb" }} />
+                      <Typography variant="h6">Review and edit tasks</Typography>
+                    </div>
+                    <TaskList tasks={tasks} removetask={removetask} edittask={edittask} />
+                  </div>
+                </div>
+              </MotionSection>
+            </div>
+
+            <div className="app-side-column">
+              <div className="sticky-panel">
+                <MotionSection custom={5}>
+                  <div className="panel-card">
+                    <div className="panel-card-inner">
+                      <div className="panel-eyebrow">AI context</div>
+                      <div className="panel-heading-row">
+                        <AutoAwesomeRoundedIcon sx={{ color: "#2563eb" }} />
+                        <Typography variant="h6">Give the planner more context</Typography>
+                      </div>
+
+                      <Stack spacing={3}>
+                        <CommitmentsForm commitments={commitments} setCommitments={setCommitments} />
+                        <Divider />
+                        <AvailabilityForm availability={availability} setAvailability={setAvailability} />
+                      </Stack>
+                    </div>
+                  </div>
+                </MotionSection>
+
+                <MotionSection custom={6}>
+                  <div className="panel-card" style={{ marginTop: 24 }}>
+                    <div className="panel-card-inner">
+                      <div className="panel-eyebrow">Generate</div>
+                      <div className="panel-heading-row">
+                        <AccessTimeRoundedIcon sx={{ color: "#2563eb" }} />
+                        <Typography variant="h6">Before you build the schedule</Typography>
+                      </div>
+
+                      <div className="quick-list">
+                        <div className="quick-item">Add at least one task with realistic deadlines.</div>
+                        <div className="quick-item">Tell TimeMax what parts of your day are already blocked.</div>
+                        <div className="quick-item">Choose a focus duration you can actually sustain.</div>
+                        <div className="quick-item">Keep the date range small if you want a tighter plan.</div>
+                      </div>
+
+                      <Button
+                        fullWidth
+                        variant="contained"
+                        onClick={generateschedule}
+                        disabled={loading || tasks.length === 0}
+                        sx={{
+                          mt: 3,
+                          py: 1.45,
+                          bgcolor: "#2563eb",
+                          "&:hover": { bgcolor: "#1d4ed8" },
+                        }}
+                      >
+                        {loading ? "Generating your schedule..." : "Build my schedule"}
+                      </Button>
+
+                      {error && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                          {error}
+                        </Alert>
+                      )}
+                    </div>
+                  </div>
+                </MotionSection>
+              </div>
+            </div>
+          </div>
+
+          <MotionSection custom={7}>
+            <div className="schedule-wrap">
+              <Schedule schedule={schedule} />
+            </div>
+          </MotionSection>
+        </div>
+      </div>
     </ThemeProvider>
   )
 }

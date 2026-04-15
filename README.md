@@ -1,4 +1,5 @@
 # TimeMax 
+<<<<<<< HEAD
 An AI-powered timetable manager that builds a personalized day-by-day schedule around your real commitments.
 
 ## Features
@@ -19,3 +20,4 @@ An AI-powered timetable manager that builds a personalized day-by-day schedule a
 
 ## Author
 Built by Suzanne Daniel Thomas — a learning project.
+

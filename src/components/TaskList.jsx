@@ -1,6 +1,5 @@
 import { useState } from "react"
 import Box from "@mui/material/Box"
-import Button from "@mui/material/Button"
 import Typography from "@mui/material/Typography"
 import Chip from "@mui/material/Chip"
 import Card from "@mui/material/Card"
@@ -8,14 +7,15 @@ import CardContent from "@mui/material/CardContent"
 import IconButton from "@mui/material/IconButton"
 import TextField from "@mui/material/TextField"
 import MenuItem from "@mui/material/MenuItem"
+import Button from "@mui/material/Button"
+import Divider from "@mui/material/Divider"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
 import CheckIcon from "@mui/icons-material/Check"
 import CloseIcon from "@mui/icons-material/Close"
 import { motion, AnimatePresence } from "framer-motion"
 
-function TaskList({ tasks, removetask, edittask, generateschedule, loading }) {
-
+function TaskList({ tasks, removetask, edittask }) {
   const [editingIndex, setEditingIndex] = useState(null)
   const [editData, setEditData] = useState({})
 
@@ -51,6 +51,7 @@ function TaskList({ tasks, removetask, edittask, generateschedule, loading }) {
   const getDeadlineColor = (deadline) => {
     const d = getDaysLeft(deadline)
     if (d === null) return "default"
+    if (d < 0) return "error"
     if (d <= 2) return "error"
     if (d <= 5) return "warning"
     return "success"
@@ -60,80 +61,95 @@ function TaskList({ tasks, removetask, edittask, generateschedule, loading }) {
   const energyEmoji = { fresh: "⚡", moderate: "😐", tired: "😴" }
 
   return (
-    <Box mb={4}>
-      <Typography
-        variant="h6"
-        fontWeight="700"
-        mb={2}
-        sx={{ fontFamily: "'Space Mono', monospace" }}
-      >
-        Your Tasks
+    <Box>
+      <Typography variant="body2" color="text.secondary" mb={2.5}>
+        Keep the list clean before generating your schedule. Edit anything that looks unrealistic.
       </Typography>
 
       {tasks.length === 0 && (
-        <Typography variant="body2" color="text.secondary">
-          No tasks added yet. Add one above!
-        </Typography>
+        <Box
+          sx={{
+            border: "1px dashed",
+            borderColor: "divider",
+            borderRadius: "18px",
+            p: 3,
+            bgcolor: "background.default",
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            No tasks yet. Add your first task above.
+          </Typography>
+        </Box>
       )}
 
       <AnimatePresence>
         {tasks.map((task, index) => (
           <motion.div
             key={index}
-            initial={{ opacity: 0, x: -40 }}
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 40 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            style={{ marginBottom: "10px" }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
+            style={{ marginBottom: "12px" }}
           >
-            <Card variant="outlined">
-              <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
-
+            <Card variant="outlined" sx={{ borderRadius: "20px" }}>
+              <CardContent sx={{ p: 2 }}>
                 {editingIndex === index ? (
-                  // EDIT MODE
                   <Box display="flex" flexDirection="column" gap={2}>
+                    <Typography variant="subtitle2" sx={{ fontFamily: "'Space Mono', monospace" }}>
+                      Edit task
+                    </Typography>
+
                     <Box display="flex" flexWrap="wrap" gap={2}>
-                      <Box>
-                        <Typography variant="caption" color="text.secondary">Task Name</Typography>
+                      <Box sx={{ minWidth: 220, flex: "1 1 240px" }}>
+                        <Typography variant="caption" color="text.secondary">
+                          Task Name
+                        </Typography>
                         <TextField
-                          size="small"
-                          value={editData.taskname}
+                          value={editData.taskname || ""}
                           onChange={(e) => setEditData({ ...editData, taskname: e.target.value })}
-                          sx={{ display: "block", mt: 0.5, width: "200px" }}
+                          sx={{ mt: 0.5 }}
                         />
                       </Box>
-                      <Box>
-                        <Typography variant="caption" color="text.secondary">Deadline</Typography>
+
+                      <Box sx={{ minWidth: 160, flex: "1 1 160px" }}>
+                        <Typography variant="caption" color="text.secondary">
+                          Deadline
+                        </Typography>
                         <TextField
                           type="date"
-                          size="small"
-                          value={editData.deadline}
+                          value={editData.deadline || ""}
                           onChange={(e) => setEditData({ ...editData, deadline: e.target.value })}
-                          sx={{ display: "block", mt: 0.5 }}
+                          sx={{ mt: 0.5 }}
                         />
                       </Box>
-                      <Box>
-                        <Typography variant="caption" color="text.secondary">Effort</Typography>
+
+                      <Box sx={{ minWidth: 160, flex: "1 1 160px" }}>
+                        <Typography variant="caption" color="text.secondary">
+                          Effort
+                        </Typography>
                         <TextField
                           select
-                          size="small"
-                          value={editData.effort}
+                          value={editData.effort || "medium"}
                           onChange={(e) => setEditData({ ...editData, effort: e.target.value })}
-                          sx={{ display: "block", mt: 0.5, width: "150px" }}
+                          sx={{ mt: 0.5 }}
                         >
                           <MenuItem value="low">🟢 Low</MenuItem>
                           <MenuItem value="medium">🟡 Medium</MenuItem>
                           <MenuItem value="high">🔴 High</MenuItem>
                         </TextField>
                       </Box>
-                      <Box>
-                        <Typography variant="caption" color="text.secondary">Energy</Typography>
+
+                      <Box sx={{ minWidth: 160, flex: "1 1 160px" }}>
+                        <Typography variant="caption" color="text.secondary">
+                          Energy
+                        </Typography>
                         <TextField
                           select
-                          size="small"
-                          value={editData.energy}
+                          value={editData.energy || "moderate"}
                           onChange={(e) => setEditData({ ...editData, energy: e.target.value })}
-                          sx={{ display: "block", mt: 0.5, width: "150px" }}
+                          sx={{ mt: 0.5 }}
                         >
                           <MenuItem value="fresh">⚡ Fresh</MenuItem>
                           <MenuItem value="moderate">😐 Moderate</MenuItem>
@@ -141,90 +157,60 @@ function TaskList({ tasks, removetask, edittask, generateschedule, loading }) {
                         </TextField>
                       </Box>
                     </Box>
-                    <Box display="flex" gap={1}>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        startIcon={<CheckIcon />}
-                        onClick={saveEdit}
-                        sx={{ fontFamily: "'Space Mono', monospace", fontSize: "11px" }}
-                      >
+
+                    <Divider />
+
+                    <Box display="flex" gap={1} flexWrap="wrap">
+                      <Button variant="contained" startIcon={<CheckIcon />} onClick={saveEdit}>
                         Save
                       </Button>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<CloseIcon />}
-                        onClick={cancelEdit}
-                        sx={{ fontFamily: "'Space Mono', monospace", fontSize: "11px" }}
-                      >
+                      <Button variant="outlined" startIcon={<CloseIcon />} onClick={cancelEdit}>
                         Cancel
                       </Button>
                     </Box>
                   </Box>
                 ) : (
-                  // VIEW MODE
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Box display="flex" gap={1} alignItems="center" flexWrap="wrap">
-                      <Typography fontWeight="600" sx={{ fontFamily: "'Space Mono', monospace", fontSize: "13px" }}>
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems={{ xs: "flex-start", sm: "center" }}
+                    gap={2}
+                    flexDirection={{ xs: "column", sm: "row" }}
+                  >
+                    <Box flex={1}>
+                      <Typography
+                        sx={{
+                          fontFamily: "'Space Mono', monospace",
+                          fontWeight: 700,
+                          fontSize: "0.96rem",
+                          mb: 1.2,
+                        }}
+                      >
                         {task.taskname}
                       </Typography>
-                      <Chip
-                        label={getDeadlineLabel(task.deadline)}
-                        color={getDeadlineColor(task.deadline)}
-                        size="small"
-                      />
-                      <Chip
-                        label={`${effortEmoji[task.effort]} ${task.effort} effort`}
-                        size="small"
-                        variant="outlined"
-                      />
-                      <Chip
-                        label={`${energyEmoji[task.energy]} ${task.energy}`}
-                        size="small"
-                        variant="outlined"
-                      />
+
+                      <Box display="flex" gap={1} flexWrap="wrap">
+                        <Chip label={getDeadlineLabel(task.deadline)} color={getDeadlineColor(task.deadline)} size="small" />
+                        <Chip label={`${effortEmoji[task.effort]} ${task.effort} effort`} size="small" variant="outlined" />
+                        <Chip label={`${energyEmoji[task.energy]} ${task.energy}`} size="small" variant="outlined" />
+                      </Box>
                     </Box>
+
                     <Box display="flex" gap={0.5}>
-                      <IconButton
-                        size="small"
-                        onClick={() => startEdit(index)}
-                      >
+                      <IconButton size="small" onClick={() => startEdit(index)}>
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton
-                        color="error"
-                        size="small"
-                        onClick={() => removetask(index)}
-                      >
+                      <IconButton size="small" color="error" onClick={() => removetask(index)}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Box>
                   </Box>
                 )}
-
               </CardContent>
             </Card>
           </motion.div>
         ))}
       </AnimatePresence>
-
-      {tasks.length > 0 && (
-        <motion.div
-          whileTap={{ scale: 0.97 }}
-          style={{ display: "inline-block", marginTop: "16px" }}
-        >
-          <Button
-            variant="contained"
-            size="large"
-            disabled={loading}
-            onClick={generateschedule}
-            sx={{ fontFamily: "'Space Mono', monospace", fontSize: "13px" }}
-          >
-            {loading ? "⏳ Generating..." : "✨ Build My Schedule"}
-          </Button>
-        </motion.div>
-      )}
     </Box>
   )
 }

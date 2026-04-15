@@ -5,34 +5,28 @@ import CardContent from "@mui/material/CardContent"
 import Chip from "@mui/material/Chip"
 import Alert from "@mui/material/Alert"
 import Divider from "@mui/material/Divider"
-import { motion, AnimatePresence } from "framer-motion"
+import Stack from "@mui/material/Stack"
+import { motion } from "framer-motion"
 
 function Schedule({ schedule }) {
   if (!schedule) return null
 
   return (
-    <Box mt={4}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+    <Box>
+      <Typography
+        variant="h5"
+        sx={{
+          fontFamily: "'Space Mono', monospace",
+          fontWeight: 700,
+          mb: 2.5,
+          letterSpacing: "-0.04em",
+        }}
       >
-        <Typography
-          variant="h6"
-          fontWeight="700"
-          mb={2}
-          sx={{ fontFamily: "'Space Mono', monospace" }}
-        >
-          Your Schedule
-        </Typography>
-      </motion.div>
+        Your generated schedule
+      </Typography>
 
       {schedule.riskSummary && (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
           <Alert severity="info" sx={{ mb: 2 }}>
             {schedule.riskSummary}
           </Alert>
@@ -41,46 +35,46 @@ function Schedule({ schedule }) {
 
       {schedule.warnings?.length > 0 && (
         <Box mb={2}>
-          {schedule.warnings.map((w, i) => (
+          {schedule.warnings.map((warning, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.15 + i * 0.08 }}
+              transition={{ duration: 0.35, delay: i * 0.05 }}
             >
               <Alert severity="warning" sx={{ mb: 1 }}>
-                {w}
+                {warning}
               </Alert>
             </motion.div>
           ))}
         </Box>
       )}
 
-      <AnimatePresence>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            overflowX: "auto",
-            gap: 2,
-            pb: 2,
-            alignItems: "flex-start",
-          }}
-        >
-          {schedule.days?.map((day, dayIndex) => (
-            <motion.div
-              key={dayIndex}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: dayIndex * 0.1 }}
-              style={{ minWidth: "260px", flex: "0 0 auto" }}
-            >
-              <Box>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            md: "repeat(2, minmax(0, 1fr))",
+            xl: "repeat(3, minmax(0, 1fr))",
+          },
+          gap: 2,
+        }}
+      >
+        {schedule.days?.map((day, dayIndex) => (
+          <motion.div
+            key={dayIndex}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: dayIndex * 0.06 }}
+          >
+            <Card variant="outlined" sx={{ borderRadius: "24px", height: "100%" }}>
+              <CardContent sx={{ p: 2 }}>
                 <Box
                   sx={{
-                    display: "inline-block",
-                    px: 2,
-                    py: 0.5,
+                    display: "inline-flex",
+                    px: 1.8,
+                    py: 0.7,
                     mb: 2,
                     borderRadius: "999px",
                     bgcolor: "#2563eb",
@@ -96,59 +90,55 @@ function Schedule({ schedule }) {
                   </Typography>
                 </Box>
 
-                <Box display="flex" flexDirection="column" gap={1.5}>
+                <Stack spacing={1.4}>
                   {day.schedule?.map((block, i) => (
-                    <motion.div
+                    <Card
                       key={i}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: dayIndex * 0.1 + i * 0.07 }}
+                      variant="outlined"
+                      sx={{
+                        borderRadius: "18px",
+                        borderLeft: block.task.toLowerCase().includes("break")
+                          ? "4px solid #94a3b8"
+                          : "4px solid #2563eb",
+                      }}
                     >
-                      <Card
-                        variant="outlined"
-                        sx={{
-                          borderLeft: block.task.toLowerCase().includes("break")
-                            ? "4px solid #9e9e9e"
-                            : "4px solid #2563eb",
-                        }}
-                      >
-                        <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
-                          <Box display="flex" alignItems="center" gap={1.5} mb={0.5} flexWrap="wrap">
-                            <Chip
-                              label={block.time}
-                              size="small"
-                              color="primary"
-                              variant="outlined"
-                              sx={{ fontFamily: "'Space Mono', monospace", fontSize: "11px" }}
-                            />
-                            <Typography
-                              fontWeight="600"
-                              sx={{ fontFamily: "'Space Mono', monospace", fontSize: "13px" }}
-                            >
-                              {block.task}
+                      <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
+                        <Box display="flex" flexWrap="wrap" gap={1} alignItems="center" mb={0.8}>
+                          <Chip
+                            label={block.time}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                            sx={{ fontFamily: "'Space Mono', monospace", fontSize: "11px" }}
+                          />
+                          <Typography
+                            fontWeight="700"
+                            sx={{ fontFamily: "'Space Mono', monospace", fontSize: "13px" }}
+                          >
+                            {block.task}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {block.duration}
+                          </Typography>
+                        </Box>
+
+                        {block.tip && (
+                          <>
+                            <Divider sx={{ my: 0.8 }} />
+                            <Typography variant="body2" color="text.secondary">
+                              💡 {block.tip}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {block.duration}
-                            </Typography>
-                          </Box>
-                          {block.tip && (
-                            <>
-                              <Divider sx={{ my: 0.5 }} />
-                              <Typography variant="body2" color="text.secondary">
-                                💡 {block.tip}
-                              </Typography>
-                            </>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </motion.div>
+                          </>
+                        )}
+                      </CardContent>
+                    </Card>
                   ))}
-                </Box>
-              </Box>
-            </motion.div>
-          ))}
-        </Box>
-      </AnimatePresence>
+                </Stack>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </Box>
     </Box>
   )
 }
