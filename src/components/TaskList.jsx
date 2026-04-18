@@ -1,23 +1,49 @@
 import { useState } from "react"
-import Box from "@mui/material/Box"
-import Typography from "@mui/material/Typography"
-import Chip from "@mui/material/Chip"
-import Card from "@mui/material/Card"
-import CardContent from "@mui/material/CardContent"
-import IconButton from "@mui/material/IconButton"
-import TextField from "@mui/material/TextField"
-import MenuItem from "@mui/material/MenuItem"
-import Button from "@mui/material/Button"
-import Divider from "@mui/material/Divider"
-import DeleteIcon from "@mui/icons-material/Delete"
-import EditIcon from "@mui/icons-material/Edit"
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Divider,
+  IconButton,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material"
 import CheckIcon from "@mui/icons-material/Check"
 import CloseIcon from "@mui/icons-material/Close"
-import { motion, AnimatePresence } from "framer-motion"
+import DeleteIcon from "@mui/icons-material/Delete"
+import EditIcon from "@mui/icons-material/Edit"
+import { AnimatePresence, motion } from "framer-motion"
+
+const MotionDiv = motion.create("div")
 
 function TaskList({ tasks, removetask, edittask }) {
   const [editingIndex, setEditingIndex] = useState(null)
   const [editData, setEditData] = useState({})
+
+  const getDaysLeft = (deadline) => {
+    if (!deadline) return null
+    return Math.ceil((new Date(deadline) - new Date()) / 86400000)
+  }
+
+  const getDeadlineLabel = (deadline) => {
+    const value = getDaysLeft(deadline)
+    if (value === null) return "No deadline"
+    if (value < 0) return "Overdue"
+    if (value === 0) return "Due today"
+    return `Due in ${value} day${value === 1 ? "" : "s"}`
+  }
+
+  const getDeadlineColor = (deadline) => {
+    const value = getDaysLeft(deadline)
+    if (value === null) return "default"
+    if (value < 0 || value <= 2) return "error"
+    if (value <= 5) return "warning"
+    return "success"
+  }
 
   const startEdit = (index) => {
     setEditingIndex(index)
@@ -35,180 +61,155 @@ function TaskList({ tasks, removetask, edittask }) {
     setEditData({})
   }
 
-  const getDaysLeft = (deadline) => {
-    if (!deadline) return null
-    return Math.ceil((new Date(deadline) - new Date()) / 86400000)
-  }
-
-  const getDeadlineLabel = (deadline) => {
-    const d = getDaysLeft(deadline)
-    if (d === null) return "No deadline"
-    if (d < 0) return "Overdue!"
-    if (d === 0) return "Due today!"
-    return `Due in ${d} day${d === 1 ? "" : "s"}`
-  }
-
-  const getDeadlineColor = (deadline) => {
-    const d = getDaysLeft(deadline)
-    if (d === null) return "default"
-    if (d < 0) return "error"
-    if (d <= 2) return "error"
-    if (d <= 5) return "warning"
-    return "success"
-  }
-
-  const effortEmoji = { low: "🟢", medium: "🟡", high: "🔴" }
-  const energyEmoji = { fresh: "⚡", moderate: "😐", tired: "😴" }
-
   return (
     <Box>
-      <Typography variant="body2" color="text.secondary" mb={2.5}>
-        Keep the list clean before generating your schedule. Edit anything that looks unrealistic.
+      <Typography sx={{ color: "text.secondary", mb: 2.4, lineHeight: 1.8 }}>
+        Review the list before generating. A cleaner input always leads to a better schedule.
       </Typography>
 
-      {tasks.length === 0 && (
+      {tasks.length === 0 ? (
         <Box
           sx={{
-            border: "1px dashed",
-            borderColor: "divider",
-            borderRadius: "18px",
-            p: 3,
-            bgcolor: "background.default",
+            p: 3.5,
+            borderRadius: 5,
+            border: "1px dashed rgba(148,163,184,0.35)",
+            bgcolor: "rgba(248,250,252,0.72)",
             textAlign: "center",
           }}
         >
-          <Typography variant="body2" color="text.secondary">
-            No tasks yet. Add your first task above.
+          <Typography sx={{ color: "text.secondary" }}>
+            No tasks yet. Add your first task above and TimeMax will start building the plan.
           </Typography>
         </Box>
-      )}
+      ) : null}
 
       <AnimatePresence>
         {tasks.map((task, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.3 }}
-            style={{ marginBottom: "12px" }}
+          <MotionDiv
+            key={`${task.taskname}-${index}`}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.28 }}
+            style={{ marginTop: index === 0 ? 0 : 12 }}
           >
-            <Card variant="outlined" sx={{ borderRadius: "20px" }}>
-              <CardContent sx={{ p: 2 }}>
+            <Card
+              variant="outlined"
+              sx={{
+                borderRadius: 5,
+                borderColor: "rgba(226,232,240,0.95)",
+                boxShadow: "0 12px 30px rgba(15,23,42,0.04)",
+              }}
+            >
+              <CardContent sx={{ p: 2.2 }}>
                 {editingIndex === index ? (
-                  <Box display="flex" flexDirection="column" gap={2}>
-                    <Typography variant="subtitle2" sx={{ fontFamily: "'Space Mono', monospace" }}>
+                  <Stack spacing={2}>
+                    <Typography sx={{ fontFamily: '"Space Mono", monospace', fontWeight: 700 }}>
                       Edit task
                     </Typography>
 
-                    <Box display="flex" flexWrap="wrap" gap={2}>
-                      <Box sx={{ minWidth: 220, flex: "1 1 240px" }}>
-                        <Typography variant="caption" color="text.secondary">
-                          Task Name
-                        </Typography>
-                        <TextField
-                          value={editData.taskname || ""}
-                          onChange={(e) => setEditData({ ...editData, taskname: e.target.value })}
-                          sx={{ mt: 0.5 }}
-                        />
-                      </Box>
+                    <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+                      <TextField
+                        label="Task name"
+                        value={editData.taskname || ""}
+                        onChange={(event) =>
+                          setEditData((current) => ({ ...current, taskname: event.target.value }))
+                        }
+                        fullWidth
+                      />
+                      <TextField
+                        label="Deadline"
+                        type="date"
+                        value={editData.deadline || ""}
+                        onChange={(event) =>
+                          setEditData((current) => ({ ...current, deadline: event.target.value }))
+                        }
+                        InputLabelProps={{ shrink: true }}
+                        fullWidth
+                      />
+                    </Stack>
 
-                      <Box sx={{ minWidth: 160, flex: "1 1 160px" }}>
-                        <Typography variant="caption" color="text.secondary">
-                          Deadline
-                        </Typography>
-                        <TextField
-                          type="date"
-                          value={editData.deadline || ""}
-                          onChange={(e) => setEditData({ ...editData, deadline: e.target.value })}
-                          sx={{ mt: 0.5 }}
-                        />
-                      </Box>
+                    <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+                      <TextField
+                        select
+                        label="Effort"
+                        value={editData.effort || "medium"}
+                        onChange={(event) =>
+                          setEditData((current) => ({ ...current, effort: event.target.value }))
+                        }
+                        fullWidth
+                      >
+                        <MenuItem value="low">Low</MenuItem>
+                        <MenuItem value="medium">Medium</MenuItem>
+                        <MenuItem value="high">High</MenuItem>
+                      </TextField>
 
-                      <Box sx={{ minWidth: 160, flex: "1 1 160px" }}>
-                        <Typography variant="caption" color="text.secondary">
-                          Effort
-                        </Typography>
-                        <TextField
-                          select
-                          value={editData.effort || "medium"}
-                          onChange={(e) => setEditData({ ...editData, effort: e.target.value })}
-                          sx={{ mt: 0.5 }}
-                        >
-                          <MenuItem value="low">🟢 Low</MenuItem>
-                          <MenuItem value="medium">🟡 Medium</MenuItem>
-                          <MenuItem value="high">🔴 High</MenuItem>
-                        </TextField>
-                      </Box>
-
-                      <Box sx={{ minWidth: 160, flex: "1 1 160px" }}>
-                        <Typography variant="caption" color="text.secondary">
-                          Energy
-                        </Typography>
-                        <TextField
-                          select
-                          value={editData.energy || "moderate"}
-                          onChange={(e) => setEditData({ ...editData, energy: e.target.value })}
-                          sx={{ mt: 0.5 }}
-                        >
-                          <MenuItem value="fresh">⚡ Fresh</MenuItem>
-                          <MenuItem value="moderate">😐 Moderate</MenuItem>
-                          <MenuItem value="tired">😴 Tired</MenuItem>
-                        </TextField>
-                      </Box>
-                    </Box>
+                      <TextField
+                        select
+                        label="Energy"
+                        value={editData.energy || "moderate"}
+                        onChange={(event) =>
+                          setEditData((current) => ({ ...current, energy: event.target.value }))
+                        }
+                        fullWidth
+                      >
+                        <MenuItem value="fresh">Fresh</MenuItem>
+                        <MenuItem value="moderate">Moderate</MenuItem>
+                        <MenuItem value="tired">Tired</MenuItem>
+                      </TextField>
+                    </Stack>
 
                     <Divider />
 
-                    <Box display="flex" gap={1} flexWrap="wrap">
+                    <Stack direction="row" spacing={1.2}>
                       <Button variant="contained" startIcon={<CheckIcon />} onClick={saveEdit}>
                         Save
                       </Button>
                       <Button variant="outlined" startIcon={<CloseIcon />} onClick={cancelEdit}>
                         Cancel
                       </Button>
-                    </Box>
-                  </Box>
+                    </Stack>
+                  </Stack>
                 ) : (
-                  <Box
-                    display="flex"
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
                     justifyContent="space-between"
                     alignItems={{ xs: "flex-start", sm: "center" }}
-                    gap={2}
-                    flexDirection={{ xs: "column", sm: "row" }}
+                    spacing={2}
                   >
-                    <Box flex={1}>
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
                       <Typography
                         sx={{
-                          fontFamily: "'Space Mono', monospace",
+                          fontFamily: '"Space Mono", monospace',
                           fontWeight: 700,
                           fontSize: "0.96rem",
                           mb: 1.2,
+                          wordBreak: "break-word",
                         }}
                       >
                         {task.taskname}
                       </Typography>
 
-                      <Box display="flex" gap={1} flexWrap="wrap">
-                        <Chip label={getDeadlineLabel(task.deadline)} color={getDeadlineColor(task.deadline)} size="small" />
-                        <Chip label={`${effortEmoji[task.effort]} ${task.effort} effort`} size="small" variant="outlined" />
-                        <Chip label={`${energyEmoji[task.energy]} ${task.energy}`} size="small" variant="outlined" />
-                      </Box>
+                      <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                        <Chip label={getDeadlineLabel(task.deadline)} color={getDeadlineColor(task.deadline)} />
+                        <Chip label={`${task.effort} effort`} variant="outlined" />
+                        <Chip label={task.energy} variant="outlined" />
+                      </Stack>
                     </Box>
 
-                    <Box display="flex" gap={0.5}>
+                    <Stack direction="row" spacing={0.5}>
                       <IconButton size="small" onClick={() => startEdit(index)}>
                         <EditIcon fontSize="small" />
                       </IconButton>
                       <IconButton size="small" color="error" onClick={() => removetask(index)}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
-                    </Box>
-                  </Box>
+                    </Stack>
+                  </Stack>
                 )}
               </CardContent>
             </Card>
-          </motion.div>
+          </MotionDiv>
         ))}
       </AnimatePresence>
     </Box>

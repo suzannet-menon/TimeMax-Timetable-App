@@ -2,22 +2,25 @@ const APIKEY = import.meta.env.VITE_GEMINI_API_KEY
 const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${APIKEY}`
 
 export const fetchSchedule = async (tasks, focusminutes, commitments, startTime, dateRange) => {
-
   if (!APIKEY) throw new Error("API key missing - check .env file")
 
   const now = new Date()
   const currentDate = now.toLocaleDateString("en-IN", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric"
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   })
 
-  const tasklist = tasks.map(t => {
-    const daysleft = t.deadline
-      ? Math.ceil((new Date(t.deadline) - new Date()) / 86400000)
-      : "unknown"
-    return `- "${t.taskname}" | effort: ${t.effort} | energy needed: ${t.energy} | deadline in ${daysleft} days`
-  }).join("\n")
+  const tasklist = tasks
+    .map((task) => {
+      const daysleft = task.deadline
+        ? Math.ceil((new Date(task.deadline) - new Date()) / 86400000)
+        : "unknown"
 
-  const isMultiDay = dateRange.from !== dateRange.to
+      return `- "${task.taskname}" | effort: ${task.effort} | energy needed: ${task.energy} | deadline in ${daysleft} days`
+    })
+    .join("\n")
 
   const prompt = `
 You are a productivity planner. Build a realistic schedule from ${dateRange.from} to ${dateRange.to}.
@@ -27,7 +30,7 @@ Schedule starts from: ${startTime} on ${dateRange.from}
 User's focus window: ${focusminutes} minutes per session.
 
 User's commitments and blocked time:
-${commitments?.trim() || "Not specified — assume full availability during standard hours 9am to 9pm"}
+${commitments?.trim() || "Not specified - assume full availability during standard hours 9am to 9pm"}
 
 Tasks to schedule:
 ${tasklist}
@@ -61,7 +64,7 @@ Return ONLY raw JSON, no markdown, no backticks, no explanation.
   const response = await fetch(URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
   })
 
   const data = await response.json()

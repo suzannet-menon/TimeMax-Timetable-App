@@ -1,11 +1,13 @@
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
+import Chip from "@mui/material/Chip"
+import MenuItem from "@mui/material/MenuItem"
+import Stack from "@mui/material/Stack"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
-import MenuItem from "@mui/material/MenuItem"
-import Chip from "@mui/material/Chip"
-import Grid from "@mui/material/Grid"
 import { motion } from "framer-motion"
+
+const MotionDiv = motion.create("div")
 
 function TaskForm({
   taskname,
@@ -21,80 +23,101 @@ function TaskForm({
   const daysLeft = deadline ? Math.ceil((new Date(deadline) - new Date()) / 86400000) : null
 
   const deadlineColor =
-    daysLeft === null ? "default" : daysLeft < 0 ? "error" : daysLeft <= 2 ? "error" : daysLeft <= 5 ? "warning" : "success"
+    daysLeft === null
+      ? "default"
+      : daysLeft < 0
+        ? "error"
+        : daysLeft <= 2
+          ? "error"
+          : daysLeft <= 5
+            ? "warning"
+            : "success"
 
   const deadlineLabel =
-    daysLeft === null ? null : daysLeft < 0 ? "Overdue!" : daysLeft === 0 ? "Due today!" : `Due in ${daysLeft} day${daysLeft === 1 ? "" : "s"}`
+    daysLeft === null
+      ? null
+      : daysLeft < 0
+        ? "Overdue"
+        : daysLeft === 0
+          ? "Due today"
+          : `Due in ${daysLeft} day${daysLeft === 1 ? "" : "s"}`
 
   return (
     <Box>
-      <Typography variant="body2" color="text.secondary" mb={2.5}>
-        Add a task with enough detail for the AI to prioritise it properly.
+      <Typography sx={{ color: "text.secondary", mb: 2.4, lineHeight: 1.8 }}>
+        Add enough detail for the AI to prioritize intelligently and keep your workload realistic.
       </Typography>
 
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={5}>
-          <Typography variant="caption" color="text.secondary" display="block" mb={0.75}>
-            Task Name
-          </Typography>
+      <Stack spacing={2}>
+        <Stack direction={{ xs: "column", lg: "row" }} spacing={2}>
           <TextField
-            placeholder="e.g. Write essay intro"
+            label="Task name"
+            placeholder="Write essay intro"
             value={taskname}
-            onChange={(e) => setTaskname(e.target.value)}
+            onChange={(event) => setTaskname(event.target.value)}
+            fullWidth
           />
-        </Grid>
+          <TextField
+            label="Deadline"
+            type="date"
+            value={deadline}
+            onChange={(event) => setDeadline(event.target.value)}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+          />
+        </Stack>
 
-        <Grid item xs={12} sm={6} md={2.5}>
-          <Typography variant="caption" color="text.secondary" display="block" mb={0.75}>
-            Deadline
-          </Typography>
-          <TextField type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
-          {deadlineLabel && (
-            <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
-              <Chip label={deadlineLabel} color={deadlineColor} size="small" sx={{ mt: 0.8 }} />
-            </motion.div>
-          )}
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={2.25}>
-          <Typography variant="caption" color="text.secondary" display="block" mb={0.75}>
-            Effort Level
-          </Typography>
-          <TextField select value={effort} onChange={(e) => setEffort(e.target.value)}>
-            <MenuItem value="low">🟢 Low effort</MenuItem>
-            <MenuItem value="medium">🟡 Medium effort</MenuItem>
-            <MenuItem value="high">🔴 High effort</MenuItem>
+        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+          <TextField
+            select
+            label="Effort level"
+            value={effort}
+            onChange={(event) => setEffort(event.target.value)}
+            fullWidth
+          >
+            <MenuItem value="low">Low effort</MenuItem>
+            <MenuItem value="medium">Medium effort</MenuItem>
+            <MenuItem value="high">High effort</MenuItem>
           </TextField>
-        </Grid>
 
-        <Grid item xs={12} sm={6} md={2.25}>
-          <Typography variant="caption" color="text.secondary" display="block" mb={0.75}>
-            Energy Right Now
-          </Typography>
-          <TextField select value={energy} onChange={(e) => setEnergy(e.target.value)}>
-            <MenuItem value="fresh">⚡ Fresh</MenuItem>
-            <MenuItem value="moderate">😐 Moderate</MenuItem>
-            <MenuItem value="tired">😴 Tired</MenuItem>
+          <TextField
+            select
+            label="Energy right now"
+            value={energy}
+            onChange={(event) => setEnergy(event.target.value)}
+            fullWidth
+          >
+            <MenuItem value="fresh">Fresh</MenuItem>
+            <MenuItem value="moderate">Moderate</MenuItem>
+            <MenuItem value="tired">Tired</MenuItem>
           </TextField>
-        </Grid>
+        </Stack>
 
-        <Grid item xs={12}>
-          <motion.div whileTap={{ scale: 0.98 }} style={{ display: "inline-block" }}>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems={{ xs: "stretch", sm: "center" }}
+          spacing={1.5}
+        >
+          <Box>{deadlineLabel ? <Chip label={deadlineLabel} color={deadlineColor} /> : null}</Box>
+
+          <MotionDiv whileTap={{ scale: 0.98 }}>
             <Button
               variant="contained"
               onClick={addtask}
               sx={{
                 px: 2.8,
                 py: 1.2,
-                bgcolor: "#2563eb",
-                "&:hover": { bgcolor: "#1d4ed8" },
+                borderRadius: 999,
+                fontFamily: '"Space Mono", monospace',
+                boxShadow: "0 14px 26px rgba(37,99,235,0.22)",
               }}
             >
-              + Add Task
+              Add task
             </Button>
-          </motion.div>
-        </Grid>
-      </Grid>
+          </MotionDiv>
+        </Stack>
+      </Stack>
     </Box>
   )
 }

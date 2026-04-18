@@ -1,488 +1,878 @@
-import Box from "@mui/material/Box"
-import AppBar from "@mui/material/AppBar"
-import Toolbar from "@mui/material/Toolbar"
-import Container from "@mui/material/Container"
-import Typography from "@mui/material/Typography"
-import Button from "@mui/material/Button"
-import Stack from "@mui/material/Stack"
-import Grid from "@mui/material/Grid"
-import Paper from "@mui/material/Paper"
-import Card from "@mui/material/Card"
-import CardContent from "@mui/material/CardContent"
-import Avatar from "@mui/material/Avatar"
-import Divider from "@mui/material/Divider"
-import Chip from "@mui/material/Chip"
-import ArrowOutwardRoundedIcon from "@mui/icons-material/ArrowOutwardRounded"
-import LoginRoundedIcon from "@mui/icons-material/LoginRounded"
-import PersonAddAlt1RoundedIcon from "@mui/icons-material/PersonAddAlt1Rounded"
-import TaskAltRoundedIcon from "@mui/icons-material/TaskAltRounded"
-import EventBusyRoundedIcon from "@mui/icons-material/EventBusyRounded"
-import BoltRoundedIcon from "@mui/icons-material/BoltRounded"
-import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded"
-import SchoolRoundedIcon from "@mui/icons-material/SchoolRounded"
-import WorkRoundedIcon from "@mui/icons-material/WorkRounded"
-import PsychologyRoundedIcon from "@mui/icons-material/PsychologyRounded"
+import React from "react"
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Button,
+  Card,
+  Chip,
+  Container,
+  CssBaseline,
+  Divider,
+  GlobalStyles,
+  IconButton,
+  Stack,
+  ThemeProvider,
+  Toolbar,
+  Typography,
+  createTheme,
+} from "@mui/material"
+import {
+  AutoAwesomeRounded,
+  DarkModeRounded,
+  GitHub,
+  LightModeRounded,
+  PsychologyAltRounded,
+  ScheduleRounded,
+  TimelineRounded,
+} from "@mui/icons-material"
 import { motion } from "framer-motion"
+import { Link } from "react-router-dom"
 
-const MotionBox = motion(Box)
+const MotionBox = motion.create(Box)
+const MotionCard = motion.create(Card)
+
+const githubUrl = "https://github.com/suzannet-menon/TimeMax-Timetable-App"
+
+const features = [
+  {
+    title: "Adaptive planning",
+    description:
+      "TimeMax balances deadlines, energy levels, and fixed commitments into schedules that still feel human.",
+    icon: <AutoAwesomeRounded sx={{ fontSize: 22 }} />,
+  },
+  {
+    title: "Focus-aware blocks",
+    description:
+      "Deep work, quick wins, and recovery time are laid out with realistic pacing instead of generic time slots.",
+    icon: <ScheduleRounded sx={{ fontSize: 22 }} />,
+  },
+  {
+    title: "AI reasoning",
+    description:
+      "Gemini helps prioritize what matters today and surfaces risks before your calendar becomes overwhelming.",
+    icon: <PsychologyAltRounded sx={{ fontSize: 22 }} />,
+  },
+]
 
 const steps = [
   {
-    title: "Add your tasks",
-    text: "Enter what you need to do, when it is due, and how demanding it feels.",
-    icon: <TaskAltRoundedIcon fontSize='small' />,
+    index: "01",
+    title: "Add the shape of your day",
+    description:
+      "Classes, deadlines, commitments, and free windows become the raw material for your timetable.",
   },
   {
-    title: "Add commitments",
-    text: "Classes, meals, family time, gym, or anything else that blocks your day.",
-    icon: <EventBusyRoundedIcon fontSize='small' />,
+    index: "02",
+    title: "Generate a practical plan",
+    description:
+      "TimeMax creates focus blocks, buffers, and a realistic order of work instead of just listing tasks.",
   },
   {
-    title: "Choose your focus style",
-    text: "Set a focus duration that matches how long you can realistically work.",
-    icon: <BoltRoundedIcon fontSize='small' />,
-  },
-  {
-    title: "Generate your schedule",
-    text: "TimeMax creates a practical plan with time blocks, warnings, and tips.",
-    icon: <AutoAwesomeRoundedIcon fontSize='small' />,
+    index: "03",
+    title: "Move with clarity",
+    description:
+      "You see what to do next, when to rest, and which deadlines need attention without mental clutter.",
   },
 ]
 
-const impact = [
-  {
-    title: "Students",
-    text: "For people balancing classes, assignments, exams, and unpredictable daily routines.",
-    icon: <SchoolRoundedIcon fontSize='small' />,
-  },
-  {
-    title: "Busy people",
-    text: "For people trying to fit meaningful work into days that already have fixed responsibilities.",
-    icon: <WorkRoundedIcon fontSize='small' />,
-  },
-  {
-    title: "Overthinkers and procrastinators",
-    text: "For people who do not need more motivation, but a plan that actually feels doable.",
-    icon: <PsychologyRoundedIcon fontSize='small' />,
-  },
+const laptopBlocks = [
+  { time: "09:00", title: "College lectures", tone: "#2563eb", width: "76%" },
+  { time: "13:45", title: "Essay writing sprint", tone: "#14b8a6", width: "66%" },
+  { time: "15:45", title: "Chemistry revision", tone: "#8b5cf6", width: "58%" },
+  { time: "18:00", title: "Gym and recovery", tone: "#f97316", width: "54%" },
 ]
 
-export default function LandingPage() {
+const fadeUp = {
+  hidden: { opacity: 0, y: 22 },
+  visible: (delay = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.65,
+      delay,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  }),
+}
+
+function buildTheme(mode) {
+  return createTheme({
+    palette: {
+      mode,
+      primary: { main: "#2563eb" },
+      background: {
+        default: mode === "light" ? "#f8fbff" : "#08111f",
+        paper: mode === "light" ? "#ffffff" : "#0f172a",
+      },
+      text: {
+        primary: mode === "light" ? "#0f172a" : "#f8fafc",
+        secondary: mode === "light" ? "#475569" : "#94a3b8",
+      },
+    },
+    shape: { borderRadius: 22 },
+    typography: {
+      fontFamily: '"Roboto", sans-serif',
+      h1: {
+        fontFamily: '"Space Mono", monospace',
+        fontWeight: 700,
+        letterSpacing: "-0.05em",
+      },
+      h2: {
+        fontFamily: '"Space Mono", monospace',
+        fontWeight: 700,
+        letterSpacing: "-0.04em",
+      },
+      h3: {
+        fontFamily: '"Space Mono", monospace',
+        fontWeight: 700,
+      },
+      h4: {
+        fontFamily: '"Space Mono", monospace',
+        fontWeight: 700,
+      },
+      button: {
+        textTransform: "none",
+        fontWeight: 600,
+      },
+    },
+  })
+}
+
+function LaptopMockup({ darkMode }) {
+  const screenBackground = darkMode
+    ? "linear-gradient(180deg, rgba(9,14,26,0.98) 0%, rgba(15,23,42,1) 100%)"
+    : "linear-gradient(180deg, #fcfdff 0%, #eef5ff 100%)"
+  const shellBackground = darkMode
+    ? "linear-gradient(180deg, #4b5563 0%, #1f2937 100%)"
+    : "linear-gradient(180deg, #dde5ef 0%, #b5c0cd 100%)"
+
   return (
     <Box
       sx={{
-        minHeight: "100vh",
-        bgcolor: "#ffffff",
-        color: "#0f172a",
-        "&::before": {
-          content: '""',
-          position: "fixed",
-          inset: 0,
-          pointerEvents: "none",
-          opacity: 0.02,
-          backgroundImage:
-            'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")',
-          backgroundRepeat: "repeat",
-          backgroundSize: "220px 220px",
-        },
+        position: "relative",
+        width: "100%",
+        maxWidth: 620,
+        mx: "auto",
+        perspective: "2000px",
       }}
     >
-      <AppBar
-        position="sticky"
-        elevation={0}
+      <Box
         sx={{
-          bgcolor: "rgba(255,255,255,0.88)",
-          backdropFilter: "blur(10px)",
-          borderBottom: "1px solid #e2e8f0",
-          color: "#0f172a",
+          position: "absolute",
+          inset: "14% 8% -12% 8%",
+          background:
+            "radial-gradient(circle at center, rgba(37,99,235,0.22) 0%, rgba(37,99,235,0.08) 44%, rgba(37,99,235,0) 76%)",
+          filter: "blur(22px)",
+          zIndex: 0,
         }}
+      />
+
+      <MotionBox
+        initial={{ opacity: 0, y: 36, rotateX: -10, rotateY: -8 }}
+        animate={{ opacity: 1, y: 0, rotateX: -3, rotateY: -5 }}
+        transition={{ duration: 0.9, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
+        sx={{ position: "relative", zIndex: 1, transformStyle: "preserve-3d" }}
       >
-        <Container maxWidth="lg">
-          <Toolbar disableGutters sx={{ minHeight: 72, justifyContent: "space-between" }}>
-            <Typography
+        <Box
+          sx={{
+            p: { xs: 1, sm: 1.15 },
+            borderRadius: "28px",
+            background: shellBackground,
+            boxShadow:
+              "0 42px 110px rgba(15,23,42,0.22), inset 0 1px 0 rgba(255,255,255,0.4)",
+          }}
+        >
+          <Box
+            sx={{
+              position: "relative",
+              overflow: "hidden",
+              borderRadius: "20px",
+              aspectRatio: "16 / 10",
+              background: screenBackground,
+              border: `1px solid ${darkMode ? "rgba(148,163,184,0.18)" : "rgba(148,163,184,0.22)"}`,
+              px: { xs: 1.1, sm: 1.5 },
+              pt: { xs: 1.3, sm: 1.6 },
+              pb: { xs: 1.2, sm: 1.4 },
+            }}
+          >
+            <Box
               sx={{
-                fontFamily: "'Space Mono', monospace",
-                fontWeight: 700,
-                fontSize: "1.1rem",
+                position: "absolute",
+                top: 8,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 82,
+                height: 14,
+                borderRadius: 999,
+                bgcolor: darkMode ? "#020617" : "#d5dfeb",
+              }}
+            />
+
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", sm: "minmax(0,1.5fr) minmax(170px,0.9fr)" },
+                gap: 1.3,
+                mt: 1.6,
+                height: "calc(100% - 16px)",
               }}
             >
-              TimeMax
-            </Typography>
-
-            <Stack direction="row" spacing={1.25}>
-              <Button
-                startIcon={<LoginRoundedIcon />}
+              <Box
                 sx={{
-                  fontFamily: "'Space Mono', monospace",
-                  textTransform: "none",
-                  color: "#0f172a",
+                  minWidth: 0,
+                  p: 1.35,
+                  borderRadius: 4,
+                  bgcolor: darkMode ? "rgba(15,23,42,0.76)" : "rgba(255,255,255,0.84)",
+                  border: `1px solid ${darkMode ? "rgba(148,163,184,0.14)" : "rgba(226,232,240,0.96)"}`,
+                  backdropFilter: "blur(12px)",
+                  overflow: "hidden",
                 }}
               >
-                Login
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<PersonAddAlt1RoundedIcon />}
-                sx={{
-                  bgcolor: "#2563eb",
-                  borderRadius: "999px",
-                  px: 2.2,
-                  fontFamily: "'Space Mono', monospace",
-                  textTransform: "none",
-                  boxShadow: "none",
-                  "&:hover": {
-                    bgcolor: "#1d4ed8",
-                    boxShadow: "none",
-                  },
-                }}
-              >
-                Sign Up
-              </Button>
-            </Stack>
-          </Toolbar>
-        </Container>
-      </AppBar>
-
-      <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
-        <Grid container spacing={{ xs: 5, md: 8 }} sx={{ py: { xs: 8, md: 12 } }} alignItems="center">
-          <Grid item xs={12} md={7}>
-            <MotionBox
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Chip
-                label="AI timetable manager"
-                sx={{
-                  mb: 2.5,
-                  bgcolor: "#dbeafe",
-                  color: "#1d4ed8",
-                  fontFamily: "'Space Mono', monospace",
-                  fontWeight: 700,
-                }}
-              />
-
-              <Typography
-                sx={{
-                  fontFamily: "'Space Mono', monospace",
-                  fontWeight: 700,
-                  letterSpacing: "-0.06em",
-                  lineHeight: 1,
-                  fontSize: { xs: "2.5rem", sm: "3.2rem", md: "4.5rem" },
-                  maxWidth: "11ch",
-                }}
-              >
-                Your day is already full. TimeMax helps you plan around it.
-              </Typography>
-
-              <Typography
-                sx={{
-                  mt: 2.5,
-                  color: "#475569",
-                  fontSize: { xs: "1rem", md: "1.08rem" },
-                  lineHeight: 1.9,
-                  maxWidth: 620,
-                }}
-              >
-                TimeMax turns your tasks, deadlines, focus limits, and real-life commitments
-                into a schedule you can actually follow — not just one that looks good on paper.
-              </Typography>
-
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 4 }}>
-                <Button
-                  variant="contained"
-                  endIcon={<ArrowOutwardRoundedIcon />}
-                  href="https://timemax-timetable.vercel.app"
-                  target="_blank"
-                  rel="noreferrer"
-                  sx={{
-                    bgcolor: "#2563eb",
-                    px: 3,
-                    py: 1.4,
-                    borderRadius: "999px",
-                    fontFamily: "'Space Mono', monospace",
-                    textTransform: "none",
-                    boxShadow: "none",
-                    "&:hover": {
-                      bgcolor: "#1d4ed8",
-                      boxShadow: "none",
-                    },
-                  }}
-                >
-                  Try TimeMax
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  href="https://github.com/suzannet-menon/TimeMax-Timetable-App"
-                  target="_blank"
-                  rel="noreferrer"
-                  sx={{
-                    px: 3,
-                    py: 1.4,
-                    borderRadius: "999px",
-                    borderColor: "#cbd5e1",
-                    color: "#0f172a",
-                    fontFamily: "'Space Mono', monospace",
-                    textTransform: "none",
-                  }}
-                >
-                  View GitHub
-                </Button>
-              </Stack>
-            </MotionBox>
-          </Grid>
-
-          <Grid item xs={12} md={5}>
-            <MotionBox
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: 0.08 }}
-            >
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 2,
-                  borderRadius: "24px",
-                  border: "1px solid #e2e8f0",
-                  bgcolor: "#ffffff",
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontFamily: "'Space Mono', monospace",
-                    fontWeight: 700,
-                    mb: 1.5,
-                  }}
-                >
-                  Sample schedule
-                </Typography>
-
-                <Stack spacing={1.2}>
-                  {[
-                    "09:00 – 13:00  College classes",
-                    "14:00 – 14:45  Essay writing",
-                    "15:00 – 15:45  Chemistry revision",
-                    "16:00 – 16:15  Break",
-                    "18:00 onwards  Family time blocked",
-                  ].map((item) => (
-                    <Paper
-                      key={item}
-                      elevation={0}
+                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1} sx={{ mb: 1.35 }}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography
                       sx={{
-                        p: 1.2,
-                        borderRadius: "16px",
-                        border: "1px solid #e2e8f0",
-                        bgcolor: "#f8fafc",
+                        fontFamily: '"Space Mono", monospace',
+                        fontWeight: 700,
+                        fontSize: { xs: "0.74rem", sm: "0.88rem" },
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
                       }}
                     >
-                      <Typography variant="body2">{item}</Typography>
-                    </Paper>
+                      Saturday | April 18
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: { xs: "0.66rem", sm: "0.76rem" },
+                        color: "text.secondary",
+                      }}
+                    >
+                      AI-generated daily flow
+                    </Typography>
+                  </Box>
+
+                  <Chip
+                    size="small"
+                    label="AI Generated"
+                    sx={{
+                      maxWidth: 110,
+                      bgcolor: "rgba(37,99,235,0.14)",
+                      color: "#2563eb",
+                      fontWeight: 700,
+                      borderRadius: "10px",
+                      "& .MuiChip-label": {
+                        px: 1,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      },
+                    }}
+                  />
+                </Stack>
+
+                <Stack spacing={0.95}>
+                  {laptopBlocks.map((block, index) => (
+                    <motion.div
+                      key={block.time}
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.42, delay: 0.2 + index * 0.08 }}
+                    >
+                      <Box
+                        sx={{
+                          display: "grid",
+                          gridTemplateColumns: { xs: "54px minmax(0,1fr)", sm: "62px minmax(0,1fr) auto" },
+                          gap: 1,
+                          alignItems: "center",
+                          px: { xs: 1, sm: 1.15 },
+                          py: { xs: 0.95, sm: 1.05 },
+                          borderRadius: 3,
+                          bgcolor: darkMode ? "rgba(15,23,42,0.84)" : "rgba(248,250,252,0.92)",
+                          border: `1px solid ${darkMode ? "rgba(148,163,184,0.12)" : "rgba(226,232,240,0.95)"}`,
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontFamily: '"Space Mono", monospace',
+                            fontSize: { xs: "0.66rem", sm: "0.76rem" },
+                            color: "text.secondary",
+                          }}
+                        >
+                          {block.time}
+                        </Typography>
+
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography
+                            sx={{
+                              fontSize: { xs: "0.72rem", sm: "0.84rem" },
+                              fontWeight: 600,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {block.title}
+                          </Typography>
+                          <Box
+                            sx={{
+                              mt: 0.7,
+                              height: 7,
+                              borderRadius: 999,
+                              bgcolor: darkMode ? "rgba(51,65,85,0.74)" : "rgba(226,232,240,0.92)",
+                              overflow: "hidden",
+                            }}
+                          >
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: block.width }}
+                              transition={{ duration: 0.95, delay: 0.35 + index * 0.1 }}
+                              style={{
+                                height: "100%",
+                                borderRadius: 999,
+                                background: block.tone,
+                              }}
+                            />
+                          </Box>
+                        </Box>
+
+                        <Typography
+                          sx={{
+                            display: { xs: "none", sm: "block" },
+                            fontSize: "0.7rem",
+                            fontWeight: 700,
+                            color: block.tone,
+                          }}
+                        >
+                          Focus
+                        </Typography>
+                      </Box>
+                    </motion.div>
                   ))}
                 </Stack>
+              </Box>
+
+              <Stack spacing={1.2} sx={{ minWidth: 0 }}>
+                <Box
+                  sx={{
+                    p: 1.35,
+                    borderRadius: 4,
+                    bgcolor: darkMode ? "rgba(15,23,42,0.78)" : "rgba(255,255,255,0.84)",
+                    border: `1px solid ${darkMode ? "rgba(148,163,184,0.14)" : "rgba(226,232,240,0.96)"}`,
+                    overflow: "hidden",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontFamily: '"Space Mono", monospace',
+                      fontSize: "0.72rem",
+                      color: "text.secondary",
+                      mb: 0.65,
+                    }}
+                  >
+                    Focus duration
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontFamily: '"Space Mono", monospace',
+                      fontSize: { xs: "1.15rem", sm: "1.6rem" },
+                      lineHeight: 1,
+                    }}
+                  >
+                    45 min
+                  </Typography>
+                  <Typography sx={{ mt: 0.7, fontSize: "0.72rem", color: "text.secondary" }}>
+                    Deep work selected
+                  </Typography>
+                </Box>
 
                 <Box
                   sx={{
-                    mt: 1.5,
-                    p: 1.2,
-                    borderRadius: "14px",
-                    bgcolor: "#eff6ff",
-                    border: "1px solid #bfdbfe",
+                    p: 1.35,
+                    borderRadius: 4,
+                    bgcolor: darkMode ? "rgba(15,23,42,0.78)" : "rgba(255,255,255,0.84)",
+                    border: `1px solid ${darkMode ? "rgba(148,163,184,0.14)" : "rgba(226,232,240,0.96)"}`,
+                    overflow: "hidden",
                   }}
                 >
-                  <Typography variant="caption" sx={{ color: "#1e40af" }}>
-                    Risk summary: Thursday is overloaded. Start high-effort work earlier.
-                  </Typography>
+                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.1 }}>
+                    <Avatar
+                      sx={{
+                        width: 30,
+                        height: 30,
+                        bgcolor: "rgba(37,99,235,0.12)",
+                        color: "#2563eb",
+                      }}
+                    >
+                      <TimelineRounded sx={{ fontSize: 18 }} />
+                    </Avatar>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: "0.84rem",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        Momentum score
+                      </Typography>
+                      <Typography sx={{ fontSize: "0.72rem", color: "text.secondary" }}>
+                        84% aligned
+                      </Typography>
+                    </Box>
+                  </Stack>
+
+                  <Stack spacing={0.9}>
+                    {[
+                      "Hard tasks placed earlier",
+                      "Commute buffers included",
+                      "Evening workload softened",
+                    ].map((line, index) => (
+                      <motion.div
+                        key={line}
+                        animate={{ opacity: [0.55, 1, 0.55] }}
+                        transition={{
+                          duration: 2.8,
+                          repeat: Infinity,
+                          delay: index * 0.35,
+                        }}
+                      >
+                        <Stack direction="row" spacing={0.8} alignItems="center">
+                          <Box
+                            sx={{
+                              width: 6,
+                              height: 6,
+                              borderRadius: "50%",
+                              bgcolor: "#2563eb",
+                              flexShrink: 0,
+                            }}
+                          />
+                          <Typography
+                            sx={{
+                              fontSize: "0.72rem",
+                              color: "text.secondary",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {line}
+                          </Typography>
+                        </Stack>
+                      </motion.div>
+                    ))}
+                  </Stack>
                 </Box>
-              </Paper>
-            </MotionBox>
-          </Grid>
-        </Grid>
-
-        <Box sx={{ py: { xs: 6, md: 8 } }}>
-          <Typography
-            sx={{
-              fontFamily: "'Space Mono', monospace",
-              color: "#2563eb",
-              fontWeight: 700,
-              fontSize: "0.9rem",
-              mb: 1,
-            }}
-          >
-            HOW IT WORKS
-          </Typography>
-
-          <Typography
-            sx={{
-              fontFamily: "'Space Mono', monospace",
-              fontWeight: 700,
-              fontSize: { xs: "1.8rem", md: "2.5rem" },
-              letterSpacing: "-0.04em",
-              maxWidth: 680,
-              mb: 4,
-            }}
-          >
-            A simple flow that turns messy days into a workable plan.
-          </Typography>
-
-          <Grid container spacing={2.5}>
-            {steps.map((item, index) => (
-              <Grid item xs={12} sm={6} md={3} key={item.title}>
-                <MotionBox
-                  initial={{ opacity: 0, y: 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.25 }}
-                  transition={{ duration: 0.4, delay: index * 0.06 }}
-                >
-                  <Card
-                    variant="outlined"
-                    sx={{
-                      height: "100%",
-                      borderRadius: "22px",
-                      borderColor: "#e2e8f0",
-                    }}
-                  >
-                    <CardContent sx={{ p: 2.5 }}>
-                      <Avatar
-                        variant="rounded"
-                        sx={{
-                          mb: 2,
-                          bgcolor: "#dbeafe",
-                          color: "#2563eb",
-                          borderRadius: "12px",
-                        }}
-                      >
-                        {item.icon}
-                      </Avatar>
-
-                      <Typography
-                        sx={{
-                          fontFamily: "'Space Mono', monospace",
-                          fontWeight: 700,
-                          mb: 1,
-                        }}
-                      >
-                        {item.title}
-                      </Typography>
-
-                      <Typography sx={{ color: "#64748b", lineHeight: 1.8 }}>
-                        {item.text}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </MotionBox>
-              </Grid>
-            ))}
-          </Grid>
+              </Stack>
+            </Box>
+          </Box>
         </Box>
-
-        <Box sx={{ py: { xs: 6, md: 8 } }}>
-          <Typography
-            sx={{
-              fontFamily: "'Space Mono', monospace",
-              color: "#2563eb",
-              fontWeight: 700,
-              fontSize: "0.9rem",
-              mb: 1,
-            }}
-          >
-            WHO IT HELPS
-          </Typography>
-
-          <Typography
-            sx={{
-              fontFamily: "'Space Mono', monospace",
-              fontWeight: 700,
-              fontSize: { xs: "1.8rem", md: "2.5rem" },
-              letterSpacing: "-0.04em",
-              maxWidth: 700,
-              mb: 2,
-            }}
-          >
-            Built for people whose time never feels fully their own.
-          </Typography>
-
-          <Typography
-            sx={{
-              color: "#475569",
-              maxWidth: 760,
-              lineHeight: 1.9,
-              mb: 4,
-            }}
-          >
-            TimeMax is especially useful for people juggling work, study, and life at the same time —
-            and for anyone who finds it hard to turn plans into action.
-          </Typography>
-
-          <Grid container spacing={2.5}>
-            {impact.map((item, index) => (
-              <Grid item xs={12} md={4} key={item.title}>
-                <MotionBox
-                  initial={{ opacity: 0, y: 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.25 }}
-                  transition={{ duration: 0.4, delay: index * 0.06 }}
-                >
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      p: 3,
-                      height: "100%",
-                      borderRadius: "22px",
-                      borderColor: "#e2e8f0",
-                    }}
-                  >
-                    <Stack direction="row" spacing={1.25} alignItems="center" mb={1.5}>
-                      <Avatar
-                        variant="rounded"
-                        sx={{
-                          bgcolor: "#dbeafe",
-                          color: "#2563eb",
-                          borderRadius: "12px",
-                        }}
-                      >
-                        {item.icon}
-                      </Avatar>
-
-                      <Typography
-                        sx={{
-                          fontFamily: "'Space Mono', monospace",
-                          fontWeight: 700,
-                        }}
-                      >
-                        {item.title}
-                      </Typography>
-                    </Stack>
-
-                    <Typography sx={{ color: "#64748b", lineHeight: 1.8 }}>
-                      {item.text}
-                    </Typography>
-                  </Paper>
-                </MotionBox>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-
-        <Divider sx={{ borderColor: "#e2e8f0" }} />
 
         <Box
           sx={{
-            py: 3,
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 2,
-            flexWrap: "wrap",
+            mx: "auto",
+            width: "90%",
+            height: 14,
+            borderRadius: "0 0 18px 18px",
+            background: shellBackground,
+            boxShadow: "0 16px 40px rgba(15,23,42,0.18)",
+            position: "relative",
           }}
         >
-          <Typography sx={{ fontFamily: "'Space Mono', monospace", color: "#64748b" }}>
-            TimeMax
-          </Typography>
-          <Typography sx={{ color: "#94a3b8" }}>
-            Built as a student portfolio project
-          </Typography>
+          <Box
+            sx={{
+              position: "absolute",
+              top: 3,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 88,
+              height: 6,
+              borderRadius: 999,
+              bgcolor: darkMode ? "rgba(248,250,252,0.24)" : "rgba(15,23,42,0.12)",
+            }}
+          />
         </Box>
-      </Container>
+      </MotionBox>
     </Box>
+  )
+}
+
+export default function LandingPage() {
+  const [darkMode, setDarkMode] = React.useState(false)
+  const theme = React.useMemo(() => buildTheme(darkMode ? "dark" : "light"), [darkMode])
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <GlobalStyles
+        styles="@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');"
+      />
+
+      <Box
+        sx={{
+          minHeight: "100vh",
+          color: "text.primary",
+          background: darkMode
+            ? "linear-gradient(180deg, #08111f 0%, #0b1528 40%, #09111d 100%)"
+            : "linear-gradient(180deg, #ffffff 0%, #f8fbff 44%, #f3f8ff 100%)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            background: darkMode
+              ? "radial-gradient(circle at 10% 10%, rgba(37,99,235,0.14), transparent 28%), radial-gradient(circle at 88% 18%, rgba(59,130,246,0.1), transparent 24%)"
+              : "radial-gradient(circle at 10% 10%, rgba(37,99,235,0.08), transparent 28%), radial-gradient(circle at 88% 18%, rgba(59,130,246,0.07), transparent 24%)",
+          }}
+        />
+
+        <AppBar
+          position="sticky"
+          elevation={0}
+          color="transparent"
+          sx={{
+            backdropFilter: "blur(18px)",
+            backgroundColor: darkMode ? "rgba(8,17,31,0.72)" : "rgba(255,255,255,0.72)",
+            borderBottom: `1px solid ${darkMode ? "rgba(148,163,184,0.12)" : "rgba(226,232,240,0.92)"}`,
+          }}
+        >
+          <Container maxWidth="xl">
+            <Toolbar disableGutters sx={{ py: 1.4, gap: 2 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontFamily: '"Space Mono", monospace',
+                  fontWeight: 700,
+                  color: "#2563eb",
+                  letterSpacing: "-0.04em",
+                  flexGrow: 1,
+                }}
+              >
+                TimeMax
+              </Typography>
+
+              <Stack
+                direction="row"
+                spacing={0.6}
+                sx={{ display: { xs: "none", md: "flex" }, alignItems: "center" }}
+              >
+                <Button color="inherit" href="#features">
+                  Features
+                </Button>
+                <Button color="inherit" href="#how-it-works">
+                  How it Works
+                </Button>
+              </Stack>
+
+              <IconButton
+                onClick={() => setDarkMode((value) => !value)}
+                sx={{
+                  border: `1px solid ${darkMode ? "rgba(148,163,184,0.16)" : "rgba(226,232,240,1)"}`,
+                  bgcolor: darkMode ? "rgba(15,23,42,0.8)" : "rgba(255,255,255,0.9)",
+                }}
+              >
+                {darkMode ? <LightModeRounded /> : <DarkModeRounded />}
+              </IconButton>
+
+              <Button
+                component={Link}
+                to="/signup"
+                variant="contained"
+                sx={{
+                  px: { xs: 2.4, sm: 3 },
+                  py: 1.15,
+                  borderRadius: 999,
+                  boxShadow: "0 16px 34px rgba(37,99,235,0.24)",
+                }}
+              >
+                Launch TimeMax
+              </Button>
+            </Toolbar>
+          </Container>
+        </AppBar>
+
+        <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", lg: "1.06fr 0.94fr" },
+              alignItems: "center",
+              gap: { xs: 7, md: 8, lg: 5 },
+              pt: { xs: 8, md: 11 },
+              pb: { xs: 10, md: 12 },
+              minHeight: { lg: "calc(100vh - 88px)" },
+            }}
+          >
+            <Box>
+              <MotionBox variants={fadeUp} initial="hidden" animate="visible" custom={0}>
+                <Chip
+                  icon={<AutoAwesomeRounded sx={{ color: "#2563eb !important" }} />}
+                  label="Powered by Google Gemini"
+                  sx={{
+                    mb: 3,
+                    px: 1,
+                    py: 2.35,
+                    borderRadius: 999,
+                    border: "1px solid rgba(37,99,235,0.16)",
+                    bgcolor: darkMode ? "rgba(15,23,42,0.7)" : "rgba(255,255,255,0.86)",
+                    color: "text.primary",
+                    "& .MuiChip-label": { px: 0.5, fontWeight: 700 },
+                  }}
+                />
+              </MotionBox>
+
+              <MotionBox variants={fadeUp} initial="hidden" animate="visible" custom={0.08}>
+                <Typography
+                  variant="h1"
+                  sx={{
+                    maxWidth: 760,
+                    fontSize: { xs: "3rem", sm: "4rem", md: "5.15rem", xl: "5.8rem" },
+                    lineHeight: { xs: 1.03, md: 0.98 },
+                    mb: 3,
+                  }}
+                >
+                  Master Your Time with AI
+                </Typography>
+              </MotionBox>
+
+              <MotionBox variants={fadeUp} initial="hidden" animate="visible" custom={0.16}>
+                <Typography
+                  sx={{
+                    maxWidth: 700,
+                    fontSize: { xs: "1rem", sm: "1.08rem", md: "1.15rem" },
+                    lineHeight: 1.85,
+                    color: "text.secondary",
+                    mb: 4.5,
+                  }}
+                >
+                  AI-powered timetable manager that turns your tasks, deadlines, energy levels and
+                  commitments into perfect day-by-day schedules.
+                </Typography>
+              </MotionBox>
+
+              <MotionBox variants={fadeUp} initial="hidden" animate="visible" custom={0.24}>
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={1.8} sx={{ mb: 5 }}>
+                  <Button
+                    component={Link}
+                    to="/signup"
+                    variant="contained"
+                    size="large"
+                    sx={{
+                      px: 3.6,
+                      py: 1.55,
+                      borderRadius: 999,
+                      fontSize: "1rem",
+                      boxShadow: "0 18px 38px rgba(37,99,235,0.28)",
+                    }}
+                  >
+                    {"Launch TimeMax ->"}
+                  </Button>
+                  <Button
+                    href={githubUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    variant="outlined"
+                    size="large"
+                    startIcon={<GitHub />}
+                    sx={{
+                      px: 3.2,
+                      py: 1.5,
+                      borderRadius: 999,
+                      borderColor: darkMode ? "rgba(148,163,184,0.24)" : "rgba(37,99,235,0.22)",
+                    }}
+                  >
+                    View on GitHub
+                  </Button>
+                </Stack>
+              </MotionBox>
+
+              <MotionBox variants={fadeUp} initial="hidden" animate="visible" custom={0.32}>
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  divider={
+                    <Divider
+                      flexItem
+                      orientation="vertical"
+                      sx={{ display: { xs: "none", sm: "block" } }}
+                    />
+                  }
+                  spacing={{ xs: 2, sm: 3 }}
+                  sx={{
+                    width: "fit-content",
+                    maxWidth: "100%",
+                    px: 2.2,
+                    py: 1.8,
+                    borderRadius: 4,
+                    border: `1px solid ${darkMode ? "rgba(148,163,184,0.12)" : "rgba(226,232,240,0.95)"}`,
+                    bgcolor: darkMode ? "rgba(15,23,42,0.6)" : "rgba(255,255,255,0.78)",
+                    backdropFilter: "blur(14px)",
+                  }}
+                >
+                  {[
+                    ["Day-by-day", "Realistic schedules"],
+                    ["Focus-aware", "Energy matched blocks"],
+                    ["Student-first", "Built for real commitments"],
+                  ].map(([title, subtitle]) => (
+                    <Box key={title}>
+                      <Typography sx={{ fontFamily: '"Space Mono", monospace', fontSize: "0.9rem" }}>
+                        {title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {subtitle}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              </MotionBox>
+            </Box>
+
+            <LaptopMockup darkMode={darkMode} />
+          </Box>
+
+          <Box id="features" sx={{ py: { xs: 5, md: 8 } }}>
+            <MotionBox
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              custom={0}
+            >
+              <Typography
+                variant="h2"
+                sx={{
+                  fontSize: { xs: "2rem", md: "2.8rem" },
+                  textAlign: "center",
+                  mb: 2,
+                }}
+              >
+                Quietly powerful planning
+              </Typography>
+              <Typography
+                sx={{
+                  maxWidth: 700,
+                  mx: "auto",
+                  textAlign: "center",
+                  color: "text.secondary",
+                  lineHeight: 1.8,
+                  mb: 5.5,
+                }}
+              >
+                Premium UI on the surface, practical schedule intelligence underneath.
+              </Typography>
+            </MotionBox>
+
+            <Stack direction={{ xs: "column", md: "row" }} spacing={2.4}>
+              {features.map((feature, index) => (
+                <MotionCard
+                  key={feature.title}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.25 }}
+                  custom={0.08 + index * 0.08}
+                  sx={{
+                    flex: 1,
+                    p: 3,
+                    borderRadius: 6,
+                    border: `1px solid ${darkMode ? "rgba(148,163,184,0.12)" : "rgba(226,232,240,0.95)"}`,
+                    boxShadow: darkMode ? "none" : "0 18px 50px rgba(15,23,42,0.06)",
+                    background: darkMode
+                      ? "linear-gradient(180deg, rgba(15,23,42,0.88) 0%, rgba(11,18,32,0.92) 100%)"
+                      : "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.95) 100%)",
+                  }}
+                >
+                  <Avatar
+                    sx={{
+                      mb: 2.2,
+                      width: 48,
+                      height: 48,
+                      bgcolor: "rgba(37,99,235,0.12)",
+                      color: "#2563eb",
+                    }}
+                  >
+                    {feature.icon}
+                  </Avatar>
+                  <Typography variant="h6" sx={{ mb: 1.2, fontFamily: '"Space Mono", monospace' }}>
+                    {feature.title}
+                  </Typography>
+                  <Typography color="text.secondary" sx={{ lineHeight: 1.8 }}>
+                    {feature.description}
+                  </Typography>
+                </MotionCard>
+              ))}
+            </Stack>
+          </Box>
+
+          <Box id="how-it-works" sx={{ py: { xs: 7, md: 10 } }}>
+            <Stack
+              direction={{ xs: "column", lg: "row" }}
+              spacing={{ xs: 3, lg: 5 }}
+              alignItems={{ xs: "stretch", lg: "center" }}
+            >
+              <MotionBox
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                custom={0}
+                sx={{ flex: 0.95 }}
+              >
+                <Typography variant="h2" sx={{ fontSize: { xs: "2rem", md: "2.8rem" }, mb: 2 }}>
+                  Built to remove planning stress
+                </Typography>
+                <Typography sx={{ color: "text.secondary", lineHeight: 1.85, maxWidth: 620 }}>
+                  Instead of manually stitching together classes, assignments, energy, and free time,
+                  you give TimeMax the inputs and it returns a schedule that feels realistic from the
+                  first draft.
+                </Typography>
+              </MotionBox>
+
+              <Stack sx={{ flex: 1 }} spacing={2}>
+                {steps.map((step, index) => (
+                  <MotionCard
+                    key={step.title}
+                    variants={fadeUp}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.25 }}
+                    custom={0.1 + index * 0.08}
+                    sx={{
+                      p: 2.8,
+                      borderRadius: 5,
+                      border: `1px solid ${darkMode ? "rgba(148,163,184,0.12)" : "rgba(226,232,240,0.95)"}`,
+                      boxShadow: darkMode ? "none" : "0 18px 45px rgba(15,23,42,0.05)",
+                      backgroundColor: darkMode ? "rgba(15,23,42,0.82)" : "rgba(255,255,255,0.9)",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        mb: 1,
+                        color: "#2563eb",
+                        fontFamily: '"Space Mono", monospace',
+                        fontSize: "0.88rem",
+                      }}
+                    >
+                      {step.index}
+                    </Typography>
+                    <Typography variant="h6" sx={{ mb: 0.9, fontFamily: '"Space Mono", monospace' }}>
+                      {step.title}
+                    </Typography>
+                    <Typography color="text.secondary" sx={{ lineHeight: 1.75 }}>
+                      {step.description}
+                    </Typography>
+                  </MotionCard>
+                ))}
+              </Stack>
+            </Stack>
+          </Box>
+        </Container>
+      </Box>
+    </ThemeProvider>
   )
 }
