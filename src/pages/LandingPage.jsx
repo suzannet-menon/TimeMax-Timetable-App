@@ -40,18 +40,21 @@ const features = [
     description:
       "TimeMax balances deadlines, energy levels, and fixed commitments into schedules that still feel human.",
     icon: <AutoAwesomeRounded sx={{ fontSize: 22 }} />,
+    note: "Deadlines, workload, and real-life constraints stay in sync.",
   },
   {
     title: "Focus-aware blocks",
     description:
       "Deep work, quick wins, and recovery time are laid out with realistic pacing instead of generic time slots.",
     icon: <ScheduleRounded sx={{ fontSize: 22 }} />,
+    note: "Better pacing means less burnout and fewer impossible plans.",
   },
   {
     title: "AI reasoning",
     description:
       "Gemini helps prioritize what matters today and surfaces risks before your calendar becomes overwhelming.",
     icon: <PsychologyAltRounded sx={{ fontSize: 22 }} />,
+    note: "You get suggestions that feel thoughtful, not robotic.",
   },
 ]
 
@@ -61,19 +64,28 @@ const steps = [
     title: "Add the shape of your day",
     description:
       "Classes, deadlines, commitments, and free windows become the raw material for your timetable.",
+    meta: "Tasks + commitments + energy",
   },
   {
     index: "02",
     title: "Generate a practical plan",
     description:
       "TimeMax creates focus blocks, buffers, and a realistic order of work instead of just listing tasks.",
+    meta: "Smart sequencing + buffers",
   },
   {
     index: "03",
     title: "Move with clarity",
     description:
       "You see what to do next, when to rest, and which deadlines need attention without mental clutter.",
+    meta: "Daily guidance + momentum",
   },
+]
+
+const workflowHighlights = [
+  { value: "45 min", label: "Smart focus window" },
+  { value: "Daily", label: "AI schedule refresh" },
+  { value: "Real-life", label: "Commitment aware" },
 ]
 
 const laptopBlocks = [
@@ -216,12 +228,13 @@ function LaptopMockup({ darkMode }) {
                 gap: 1.3,
                 mt: 1.6,
                 height: "calc(100% - 16px)",
+                alignItems: "stretch",
               }}
             >
               <Box
                 sx={{
                   minWidth: 0,
-                  p: 1.35,
+                  p: { xs: 1.1, sm: 1.35 },
                   borderRadius: 4,
                   bgcolor: darkMode ? "rgba(15,23,42,0.76)" : "rgba(255,255,255,0.84)",
                   border: `1px solid ${darkMode ? "rgba(148,163,184,0.14)" : "rgba(226,232,240,0.96)"}`,
@@ -257,15 +270,17 @@ function LaptopMockup({ darkMode }) {
                     size="small"
                     label="AI Generated"
                     sx={{
-                      maxWidth: 110,
+                      maxWidth: { xs: 88, sm: 108 },
                       bgcolor: "rgba(37,99,235,0.14)",
                       color: "#2563eb",
                       fontWeight: 700,
                       borderRadius: "10px",
+                      flexShrink: 0,
                       "& .MuiChip-label": {
-                        px: 1,
+                        px: { xs: 0.7, sm: 1 },
                         overflow: "hidden",
                         textOverflow: "ellipsis",
+                        fontSize: { xs: "0.62rem", sm: "0.7rem" },
                       },
                     }}
                   />
@@ -355,7 +370,7 @@ function LaptopMockup({ darkMode }) {
               <Stack spacing={1.2} sx={{ minWidth: 0 }}>
                 <Box
                   sx={{
-                    p: 1.35,
+                    p: { xs: 1.1, sm: 1.35 },
                     borderRadius: 4,
                     bgcolor: darkMode ? "rgba(15,23,42,0.78)" : "rgba(255,255,255,0.84)",
                     border: `1px solid ${darkMode ? "rgba(148,163,184,0.14)" : "rgba(226,232,240,0.96)"}`,
@@ -384,11 +399,32 @@ function LaptopMockup({ darkMode }) {
                   <Typography sx={{ mt: 0.7, fontSize: "0.72rem", color: "text.secondary" }}>
                     Deep work selected
                   </Typography>
+                  <Box
+                    sx={{
+                      mt: 1,
+                      height: 6,
+                      borderRadius: 999,
+                      bgcolor: darkMode ? "rgba(51,65,85,0.7)" : "rgba(226,232,240,0.95)",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <motion.div
+                      initial={{ x: "-100%" }}
+                      animate={{ x: ["-100%", "120%"] }}
+                      transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+                      style={{
+                        width: "38%",
+                        height: "100%",
+                        borderRadius: 999,
+                        background: "linear-gradient(90deg, rgba(37,99,235,0.15), #2563eb, rgba(37,99,235,0.15))",
+                      }}
+                    />
+                  </Box>
                 </Box>
 
                 <Box
                   sx={{
-                    p: 1.35,
+                    p: { xs: 1.1, sm: 1.35 },
                     borderRadius: 4,
                     bgcolor: darkMode ? "rgba(15,23,42,0.78)" : "rgba(255,255,255,0.84)",
                     border: `1px solid ${darkMode ? "rgba(148,163,184,0.14)" : "rgba(226,232,240,0.96)"}`,
@@ -424,6 +460,34 @@ function LaptopMockup({ darkMode }) {
                     </Box>
                   </Stack>
 
+                  <Box
+                    sx={{
+                      mb: 1,
+                      height: 34,
+                      display: "flex",
+                      alignItems: "flex-end",
+                      gap: 0.6,
+                    }}
+                  >
+                    {[44, 72, 58, 88, 68, 94].map((height, index) => (
+                      <motion.div
+                        key={height}
+                        animate={{ height: [`${Math.max(26, height - 18)}%`, `${height}%`, `${Math.max(22, height - 12)}%`] }}
+                        transition={{
+                          duration: 1.8,
+                          repeat: Infinity,
+                          delay: index * 0.12,
+                          ease: "easeInOut",
+                        }}
+                        style={{
+                          width: "12%",
+                          borderRadius: 999,
+                          background: index > 3 ? "#2563eb" : "rgba(37,99,235,0.45)",
+                        }}
+                      />
+                    ))}
+                  </Box>
+
                   <Stack spacing={0.9}>
                     {[
                       "Hard tasks placed earlier",
@@ -453,9 +517,7 @@ function LaptopMockup({ darkMode }) {
                             sx={{
                               fontSize: "0.72rem",
                               color: "text.secondary",
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
+                              lineHeight: 1.45,
                             }}
                           >
                             {line}
@@ -778,13 +840,15 @@ export default function LandingPage() {
                   custom={0.08 + index * 0.08}
                   sx={{
                     flex: 1,
-                    p: 3,
-                    borderRadius: 6,
+                    p: { xs: 2.6, md: 3.1 },
+                    minHeight: { md: 250 },
+                    borderRadius: "48px",
                     border: `1px solid ${darkMode ? "rgba(148,163,184,0.12)" : "rgba(226,232,240,0.95)"}`,
                     boxShadow: darkMode ? "none" : "0 18px 50px rgba(15,23,42,0.06)",
                     background: darkMode
                       ? "linear-gradient(180deg, rgba(15,23,42,0.88) 0%, rgba(11,18,32,0.92) 100%)"
                       : "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.95) 100%)",
+                    overflow: "hidden",
                   }}
                 >
                   <Avatar
@@ -803,6 +867,16 @@ export default function LandingPage() {
                   </Typography>
                   <Typography color="text.secondary" sx={{ lineHeight: 1.8 }}>
                     {feature.description}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      mt: 1.6,
+                      color: darkMode ? "rgba(191,219,254,0.9)" : "#2563eb",
+                      fontSize: "0.9rem",
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    {feature.note}
                   </Typography>
                 </MotionCard>
               ))}
@@ -831,6 +905,36 @@ export default function LandingPage() {
                   you give TimeMax the inputs and it returns a schedule that feels realistic from the
                   first draft.
                 </Typography>
+
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={1.4} sx={{ mt: 3.2 }}>
+                  {workflowHighlights.map((item) => (
+                    <Box
+                      key={item.label}
+                      sx={{
+                        minWidth: 0,
+                        flex: 1,
+                        p: 1.8,
+                        borderRadius: 4,
+                        border: `1px solid ${darkMode ? "rgba(148,163,184,0.12)" : "rgba(226,232,240,0.95)"}`,
+                        bgcolor: darkMode ? "rgba(15,23,42,0.52)" : "rgba(255,255,255,0.72)",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontFamily: '"Space Mono", monospace',
+                          fontSize: "1rem",
+                          color: "#2563eb",
+                          mb: 0.4,
+                        }}
+                      >
+                        {item.value}
+                      </Typography>
+                      <Typography sx={{ color: "text.secondary", fontSize: "0.92rem", lineHeight: 1.6 }}>
+                        {item.label}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
               </MotionBox>
 
               <Stack sx={{ flex: 1 }} spacing={2}>
@@ -843,11 +947,13 @@ export default function LandingPage() {
                     viewport={{ once: true, amount: 0.25 }}
                     custom={0.1 + index * 0.08}
                     sx={{
-                      p: 2.8,
-                      borderRadius: 5,
+                      p: { xs: 2.3, md: 2.8 },
+                      minHeight: { md: 146 },
+                      borderRadius: "40px",
                       border: `1px solid ${darkMode ? "rgba(148,163,184,0.12)" : "rgba(226,232,240,0.95)"}`,
                       boxShadow: darkMode ? "none" : "0 18px 45px rgba(15,23,42,0.05)",
                       backgroundColor: darkMode ? "rgba(15,23,42,0.82)" : "rgba(255,255,255,0.9)",
+                      overflow: "hidden",
                     }}
                   >
                     <Typography
@@ -860,10 +966,19 @@ export default function LandingPage() {
                     >
                       {step.index}
                     </Typography>
+                    <Typography
+                      sx={{
+                        color: darkMode ? "rgba(191,219,254,0.85)" : "#2563eb",
+                        fontSize: "0.82rem",
+                        mb: 0.65,
+                      }}
+                    >
+                      {step.meta}
+                    </Typography>
                     <Typography variant="h6" sx={{ mb: 0.9, fontFamily: '"Space Mono", monospace' }}>
                       {step.title}
                     </Typography>
-                    <Typography color="text.secondary" sx={{ lineHeight: 1.75 }}>
+                    <Typography color="text.secondary" sx={{ lineHeight: 1.75, maxWidth: "56ch" }}>
                       {step.description}
                     </Typography>
                   </MotionCard>
