@@ -95,13 +95,15 @@ const laptopBlocks = [
   { time: "18:00", title: "Gym and recovery", tone: "#f97316", width: "54%" },
 ]
 
+const keyboardRows = [14, 13, 12, 9]
+
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
   visible: (delay = 0) => ({
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.65,
+      duration: 0.82,
       delay,
       ease: [0.22, 1, 0.36, 1],
     },
@@ -128,12 +130,12 @@ function buildTheme(mode) {
       h1: {
         fontFamily: '"Space Mono", monospace',
         fontWeight: 700,
-        letterSpacing: "-0.05em",
+        letterSpacing: 0,
       },
       h2: {
         fontFamily: '"Space Mono", monospace',
         fontWeight: 700,
-        letterSpacing: "-0.04em",
+        letterSpacing: 0,
       },
       h3: {
         fontFamily: '"Space Mono", monospace',
@@ -164,9 +166,10 @@ function LaptopMockup({ darkMode }) {
       sx={{
         position: "relative",
         width: "100%",
-        maxWidth: 620,
+        maxWidth: { xs: 590, sm: 700, md: 800, xl: 860 },
         mx: "auto",
-        perspective: "2000px",
+        perspective: "1800px",
+        minWidth: 0,
       }}
     >
       <Box
@@ -181,15 +184,31 @@ function LaptopMockup({ darkMode }) {
       />
 
       <MotionBox
-        initial={{ opacity: 0, y: 36, rotateX: -10, rotateY: -8 }}
-        animate={{ opacity: 1, y: 0, rotateX: -3, rotateY: -5 }}
-        transition={{ duration: 0.9, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
-        sx={{ position: "relative", zIndex: 1, transformStyle: "preserve-3d" }}
+        initial={{ opacity: 0, y: 30, rotateX: -9, rotateY: -9 }}
+        animate={{
+          opacity: 1,
+          y: [0, -5, 0],
+          rotateX: [-4.8, -3.8, -4.8],
+          rotateY: [-7.2, -6.1, -7.2],
+        }}
+        transition={{
+          opacity: { duration: 0.9, delay: 0.16, ease: [0.22, 1, 0.36, 1] },
+          y: { duration: 6.2, repeat: Infinity, ease: "easeInOut" },
+          rotateX: { duration: 6.2, repeat: Infinity, ease: "easeInOut" },
+          rotateY: { duration: 6.2, repeat: Infinity, ease: "easeInOut" },
+        }}
+        sx={{
+          position: "relative",
+          zIndex: 1,
+          transformStyle: "preserve-3d",
+          transformOrigin: "center center",
+          maxWidth: "100%",
+        }}
       >
         <Box
           sx={{
-            p: { xs: 1, sm: 1.15 },
-            borderRadius: "28px",
+            p: { xs: 1, sm: 1.15, md: 1.25 },
+            borderRadius: { xs: "28px", md: "34px" },
             background: shellBackground,
             boxShadow:
               "0 42px 110px rgba(15,23,42,0.22), inset 0 1px 0 rgba(255,255,255,0.4)",
@@ -199,13 +218,14 @@ function LaptopMockup({ darkMode }) {
             sx={{
               position: "relative",
               overflow: "hidden",
-              borderRadius: "20px",
-              aspectRatio: "16 / 10",
+              isolation: "isolate",
+              borderRadius: { xs: "20px", md: "24px" },
+              aspectRatio: "16 / 9.8",
               background: screenBackground,
               border: `1px solid ${darkMode ? "rgba(148,163,184,0.18)" : "rgba(148,163,184,0.22)"}`,
-              px: { xs: 1.1, sm: 1.5 },
-              pt: { xs: 1.3, sm: 1.6 },
-              pb: { xs: 1.2, sm: 1.4 },
+              px: { xs: 1, sm: 1.25, md: 1.45 },
+              pt: { xs: 1.15, sm: 1.35, md: 1.55 },
+              pb: { xs: 0.9, sm: 1.05, md: 1.2 },
             }}
           >
             <Box
@@ -223,32 +243,49 @@ function LaptopMockup({ darkMode }) {
 
             <Box
               sx={{
+                position: "absolute",
+                inset: 0,
+                pointerEvents: "none",
+                background:
+                  darkMode
+                    ? "linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.05) 48%, transparent 100%)"
+                    : "linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.34) 48%, transparent 100%)",
+                opacity: 0.9,
+              }}
+              component={motion.div}
+              animate={{ x: ["-120%", "125%"] }}
+              transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.6 }}
+            />
+
+            <Box
+              sx={{
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "minmax(0,1.5fr) minmax(170px,0.9fr)" },
-                gap: 1.3,
-                mt: 1.6,
+                gridTemplateColumns: { xs: "1fr", sm: "minmax(0,1.6fr) minmax(138px,0.64fr)" },
+                gap: { xs: 0.75, sm: 0.9, md: 1.1 },
+                mt: { xs: 1.45, md: 1.6 },
                 height: "calc(100% - 16px)",
                 alignItems: "stretch",
+                minWidth: 0,
+                overflow: "hidden",
               }}
             >
               <Box
                 sx={{
                   minWidth: 0,
-                  p: { xs: 1.1, sm: 1.35 },
-                  borderRadius: 4,
-                  bgcolor: darkMode ? "rgba(15,23,42,0.76)" : "rgba(255,255,255,0.84)",
-                  border: `1px solid ${darkMode ? "rgba(148,163,184,0.14)" : "rgba(226,232,240,0.96)"}`,
-                  backdropFilter: "blur(12px)",
+                  p: { xs: 0.75, sm: 0.9, md: 1.05 },
+                  borderRadius: { xs: "16px", md: "20px" },
+                  bgcolor: darkMode ? "rgba(15,23,42,0.36)" : "rgba(255,255,255,0.38)",
+                  border: `1px solid ${darkMode ? "rgba(148,163,184,0.1)" : "rgba(203,213,225,0.58)"}`,
                   overflow: "hidden",
                 }}
               >
-                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1} sx={{ mb: 1.35 }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1} sx={{ mb: 0.95 }}>
                   <Box sx={{ minWidth: 0 }}>
                     <Typography
                       sx={{
                         fontFamily: '"Space Mono", monospace',
                         fontWeight: 700,
-                        fontSize: { xs: "0.74rem", sm: "0.88rem" },
+                        fontSize: { xs: "0.68rem", sm: "0.78rem", md: "0.86rem" },
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
@@ -258,7 +295,7 @@ function LaptopMockup({ darkMode }) {
                     </Typography>
                     <Typography
                       sx={{
-                        fontSize: { xs: "0.66rem", sm: "0.76rem" },
+                        fontSize: { xs: "0.58rem", sm: "0.66rem", md: "0.74rem" },
                         color: "text.secondary",
                       }}
                     >
@@ -271,46 +308,63 @@ function LaptopMockup({ darkMode }) {
                     label="AI Generated"
                     sx={{
                       maxWidth: { xs: 88, sm: 108 },
-                      bgcolor: "rgba(37,99,235,0.14)",
+                      bgcolor: "rgba(37,99,235,0.1)",
                       color: "#2563eb",
                       fontWeight: 700,
-                      borderRadius: "10px",
+                      borderRadius: "8px",
+                      height: { xs: 22, md: 24 },
                       flexShrink: 0,
                       "& .MuiChip-label": {
                         px: { xs: 0.7, sm: 1 },
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        fontSize: { xs: "0.62rem", sm: "0.7rem" },
+                        fontSize: { xs: "0.56rem", sm: "0.62rem", md: "0.68rem" },
                       },
                     }}
                   />
                 </Stack>
 
-                <Stack spacing={0.95}>
+                <Stack
+                  spacing={0}
+                  sx={{
+                    borderTop: `1px solid ${darkMode ? "rgba(148,163,184,0.12)" : "rgba(203,213,225,0.58)"}`,
+                  }}
+                >
                   {laptopBlocks.map((block, index) => (
                     <motion.div
                       key={block.time}
                       initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.42, delay: 0.2 + index * 0.08 }}
+                      animate={{
+                        opacity: 1,
+                        x: 0,
+                        scale: index === 1 ? [1, 1.015, 1] : 1,
+                      }}
+                      transition={{
+                        opacity: { duration: 0.42, delay: 0.2 + index * 0.08 },
+                        x: { duration: 0.42, delay: 0.2 + index * 0.08 },
+                        scale: index === 1
+                          ? { duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 1.1 }
+                          : undefined,
+                      }}
                     >
                       <Box
                         sx={{
                           display: "grid",
-                          gridTemplateColumns: { xs: "54px minmax(0,1fr)", sm: "62px minmax(0,1fr) auto" },
-                          gap: 1,
+                          gridTemplateColumns: { xs: "52px minmax(0,1fr)", sm: "58px minmax(0,1fr) auto" },
+                          gap: { xs: 0.75, sm: 0.95 },
                           alignItems: "center",
-                          px: { xs: 1, sm: 1.15 },
-                          py: { xs: 0.95, sm: 1.05 },
-                          borderRadius: 3,
-                          bgcolor: darkMode ? "rgba(15,23,42,0.84)" : "rgba(248,250,252,0.92)",
-                          border: `1px solid ${darkMode ? "rgba(148,163,184,0.12)" : "rgba(226,232,240,0.95)"}`,
+                          px: { xs: 0.55, sm: 0.7, md: 0.85 },
+                          py: { xs: 0.68, sm: 0.78, md: 0.88 },
+                          borderRadius: 0,
+                          bgcolor: "transparent",
+                          borderBottom: `1px solid ${darkMode ? "rgba(148,163,184,0.1)" : "rgba(203,213,225,0.52)"}`,
+                          overflow: "hidden",
                         }}
                       >
                         <Typography
                           sx={{
                             fontFamily: '"Space Mono", monospace',
-                            fontSize: { xs: "0.66rem", sm: "0.76rem" },
+                            fontSize: { xs: "0.58rem", sm: "0.66rem", md: "0.74rem" },
                             color: "text.secondary",
                           }}
                         >
@@ -320,7 +374,7 @@ function LaptopMockup({ darkMode }) {
                         <Box sx={{ minWidth: 0 }}>
                           <Typography
                             sx={{
-                              fontSize: { xs: "0.72rem", sm: "0.84rem" },
+                              fontSize: { xs: "0.64rem", sm: "0.72rem", md: "0.82rem" },
                               fontWeight: 600,
                               whiteSpace: "nowrap",
                               overflow: "hidden",
@@ -332,7 +386,7 @@ function LaptopMockup({ darkMode }) {
                           <Box
                             sx={{
                               mt: 0.7,
-                              height: 7,
+                              height: { xs: 6, md: 7 },
                               borderRadius: 999,
                               bgcolor: darkMode ? "rgba(51,65,85,0.74)" : "rgba(226,232,240,0.92)",
                               overflow: "hidden",
@@ -354,7 +408,7 @@ function LaptopMockup({ darkMode }) {
                         <Typography
                           sx={{
                             display: { xs: "none", sm: "block" },
-                            fontSize: "0.7rem",
+                            fontSize: { sm: "0.6rem", md: "0.68rem" },
                             fontWeight: 700,
                             color: block.tone,
                           }}
@@ -367,20 +421,27 @@ function LaptopMockup({ darkMode }) {
                 </Stack>
               </Box>
 
-              <Stack spacing={1.2} sx={{ minWidth: 0 }}>
+              <Stack
+                spacing={1.2}
+                sx={{
+                  minWidth: 0,
+                  display: { xs: "none", sm: "flex" },
+                  overflow: "hidden",
+                }}
+              >
                 <Box
                   sx={{
-                    p: { xs: 1.1, sm: 1.35 },
-                    borderRadius: 4,
-                    bgcolor: darkMode ? "rgba(15,23,42,0.78)" : "rgba(255,255,255,0.84)",
-                    border: `1px solid ${darkMode ? "rgba(148,163,184,0.14)" : "rgba(226,232,240,0.96)"}`,
+                    p: { xs: 0.75, sm: 0.9, md: 1 },
+                    borderRadius: { sm: "16px", md: "20px" },
+                    bgcolor: darkMode ? "rgba(15,23,42,0.34)" : "rgba(255,255,255,0.34)",
+                    border: `1px solid ${darkMode ? "rgba(148,163,184,0.1)" : "rgba(203,213,225,0.54)"}`,
                     overflow: "hidden",
                   }}
                 >
                   <Typography
                     sx={{
                       fontFamily: '"Space Mono", monospace',
-                      fontSize: "0.72rem",
+                      fontSize: { xs: "0.6rem", md: "0.7rem" },
                       color: "text.secondary",
                       mb: 0.65,
                     }}
@@ -390,13 +451,13 @@ function LaptopMockup({ darkMode }) {
                   <Typography
                     sx={{
                       fontFamily: '"Space Mono", monospace',
-                      fontSize: { xs: "1.15rem", sm: "1.6rem" },
+                      fontSize: { xs: "1.02rem", sm: "1.28rem", md: "1.55rem" },
                       lineHeight: 1,
                     }}
                   >
                     45 min
                   </Typography>
-                  <Typography sx={{ mt: 0.7, fontSize: "0.72rem", color: "text.secondary" }}>
+                  <Typography sx={{ mt: 0.65, fontSize: { xs: "0.6rem", md: "0.7rem" }, color: "text.secondary" }}>
                     Deep work selected
                   </Typography>
                   <Box
@@ -424,10 +485,10 @@ function LaptopMockup({ darkMode }) {
 
                 <Box
                   sx={{
-                    p: { xs: 1.1, sm: 1.35 },
-                    borderRadius: 4,
-                    bgcolor: darkMode ? "rgba(15,23,42,0.78)" : "rgba(255,255,255,0.84)",
-                    border: `1px solid ${darkMode ? "rgba(148,163,184,0.14)" : "rgba(226,232,240,0.96)"}`,
+                    p: { xs: 0.75, sm: 0.9, md: 1 },
+                    borderRadius: { sm: "16px", md: "20px" },
+                    bgcolor: darkMode ? "rgba(15,23,42,0.34)" : "rgba(255,255,255,0.34)",
+                    border: `1px solid ${darkMode ? "rgba(148,163,184,0.1)" : "rgba(203,213,225,0.54)"}`,
                     overflow: "hidden",
                   }}
                 >
@@ -446,7 +507,7 @@ function LaptopMockup({ darkMode }) {
                       <Typography
                         sx={{
                           fontWeight: 700,
-                          fontSize: "0.84rem",
+                          fontSize: { xs: "0.72rem", md: "0.82rem" },
                           whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
@@ -454,7 +515,7 @@ function LaptopMockup({ darkMode }) {
                       >
                         Momentum score
                       </Typography>
-                      <Typography sx={{ fontSize: "0.72rem", color: "text.secondary" }}>
+                      <Typography sx={{ fontSize: { xs: "0.6rem", md: "0.7rem" }, color: "text.secondary" }}>
                         84% aligned
                       </Typography>
                     </Box>
@@ -462,11 +523,11 @@ function LaptopMockup({ darkMode }) {
 
                   <Box
                     sx={{
-                      mb: 1,
-                      height: 34,
+                      mb: 0.9,
+                      height: { xs: 28, md: 34 },
                       display: "flex",
                       alignItems: "flex-end",
-                      gap: 0.6,
+                      gap: { xs: 0.45, md: 0.6 },
                     }}
                   >
                     {[44, 72, 58, 88, 68, 94].map((height, index) => (
@@ -515,7 +576,7 @@ function LaptopMockup({ darkMode }) {
                           />
                           <Typography
                             sx={{
-                              fontSize: "0.72rem",
+                              fontSize: { xs: "0.58rem", md: "0.7rem" },
                               color: "text.secondary",
                               lineHeight: 1.45,
                             }}
@@ -534,25 +595,82 @@ function LaptopMockup({ darkMode }) {
 
         <Box
           sx={{
-            mx: "auto",
-            width: "90%",
-            height: 14,
-            borderRadius: "0 0 18px 18px",
-            background: shellBackground,
-            boxShadow: "0 16px 40px rgba(15,23,42,0.18)",
             position: "relative",
+            width: "94%",
+            height: { xs: 58, sm: 76, md: 94 },
+            mx: "auto",
+            mt: { xs: -0.15, sm: -0.25 },
+            transform: "perspective(760px) rotateX(58deg)",
+            transformOrigin: "top center",
+            borderRadius: "0 0 30px 30px",
+            background: darkMode
+              ? "linear-gradient(180deg, #374151 0%, #111827 100%)"
+              : "linear-gradient(180deg, #d8e2ee 0%, #aebaca 100%)",
+            boxShadow:
+              "0 24px 44px rgba(15,23,42,0.2), inset 0 1px 0 rgba(255,255,255,0.46)",
+            overflow: "hidden",
           }}
         >
           <Box
             sx={{
               position: "absolute",
-              top: 3,
+              inset: { xs: "8px 12% 15px", sm: "10px 13% 18px", md: "12px 14% 22px" },
+              display: "grid",
+              gridTemplateRows: "repeat(4, minmax(0, 1fr))",
+              gap: { xs: 0.35, sm: 0.5, md: 0.7 },
+              opacity: darkMode ? 0.78 : 0.86,
+            }}
+          >
+            {keyboardRows.map((count, rowIndex) => (
+              <Box
+                key={count}
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))`,
+                  gap: { xs: 0.35, sm: 0.5, md: 0.65 },
+                  px: rowIndex === 3 ? { xs: 2.2, sm: 3.2, md: 4.4 } : rowIndex * 0.85,
+                }}
+              >
+                {Array.from({ length: count }).map((_, keyIndex) => (
+                  <Box
+                    key={`${rowIndex}-${keyIndex}`}
+                    component={motion.div}
+                    animate={{
+                      opacity: rowIndex === 1 && keyIndex > 4 && keyIndex < 8 ? [0.68, 1, 0.68] : 0.86,
+                    }}
+                    transition={{
+                      duration: 2.4,
+                      repeat: Infinity,
+                      delay: keyIndex * 0.03,
+                      ease: "easeInOut",
+                    }}
+                    sx={{
+                      minWidth: 0,
+                      borderRadius: { xs: "3px", md: "5px" },
+                      background: darkMode
+                        ? "linear-gradient(180deg, rgba(15,23,42,0.94), rgba(2,6,23,0.92))"
+                        : "linear-gradient(180deg, rgba(248,250,252,0.96), rgba(203,213,225,0.92))",
+                      boxShadow: darkMode
+                        ? "inset 0 1px 0 rgba(255,255,255,0.09), 0 2px 3px rgba(0,0,0,0.28)"
+                        : "inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 3px rgba(15,23,42,0.16)",
+                    }}
+                  />
+                ))}
+              </Box>
+            ))}
+          </Box>
+
+          <Box
+            sx={{
+              position: "absolute",
               left: "50%",
+              bottom: { xs: 5, sm: 7, md: 9 },
               transform: "translateX(-50%)",
-              width: 88,
-              height: 6,
-              borderRadius: 999,
-              bgcolor: darkMode ? "rgba(248,250,252,0.24)" : "rgba(15,23,42,0.12)",
+              width: "22%",
+              height: { xs: 10, sm: 13, md: 16 },
+              borderRadius: { xs: "5px", md: "8px" },
+              bgcolor: darkMode ? "rgba(2,6,23,0.55)" : "rgba(148,163,184,0.34)",
+              boxShadow: "inset 0 1px 2px rgba(15,23,42,0.18)",
             }}
           />
         </Box>
@@ -569,7 +687,10 @@ export default function LandingPage() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <GlobalStyles
-        styles="@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');"
+        styles={`
+          @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+          html { scroll-behavior: smooth; }
+        `}
       />
 
       <Box
@@ -581,6 +702,7 @@ export default function LandingPage() {
             : "linear-gradient(180deg, #ffffff 0%, #f8fbff 44%, #f3f8ff 100%)",
           position: "relative",
           overflow: "hidden",
+          overflowX: "clip",
         }}
       >
         <Box
@@ -612,7 +734,7 @@ export default function LandingPage() {
                   fontFamily: '"Space Mono", monospace',
                   fontWeight: 700,
                   color: "#2563eb",
-                  letterSpacing: "-0.04em",
+                  letterSpacing: 0,
                   flexGrow: 1,
                 }}
               >
@@ -663,12 +785,14 @@ export default function LandingPage() {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: { xs: "1fr", lg: "1.06fr 0.94fr" },
+              gridTemplateColumns: { xs: "1fr", lg: "0.94fr 1.06fr" },
               alignItems: "center",
-              gap: { xs: 7, md: 8, lg: 5 },
+              gap: { xs: 7, md: 8, lg: 4 },
               pt: { xs: 8, md: 11 },
               pb: { xs: 10, md: 12 },
               minHeight: { lg: "calc(100vh - 88px)" },
+              minWidth: 0,
+              "& > *": { minWidth: 0 },
             }}
           >
             <Box>
@@ -693,8 +817,8 @@ export default function LandingPage() {
                 <Typography
                   variant="h1"
                   sx={{
-                    maxWidth: 760,
-                    fontSize: { xs: "3rem", sm: "4rem", md: "5.15rem", xl: "5.8rem" },
+                    maxWidth: 700,
+                    fontSize: { xs: "3rem", sm: "3.9rem", md: "4.7rem", xl: "5.2rem" },
                     lineHeight: { xs: 1.03, md: 0.98 },
                     mb: 3,
                   }}
@@ -706,8 +830,8 @@ export default function LandingPage() {
               <MotionBox variants={fadeUp} initial="hidden" animate="visible" custom={0.16}>
                 <Typography
                   sx={{
-                    maxWidth: 700,
-                    fontSize: { xs: "1rem", sm: "1.08rem", md: "1.15rem" },
+                    maxWidth: 620,
+                    fontSize: { xs: "1rem", sm: "1.04rem", md: "1.1rem" },
                     lineHeight: 1.85,
                     color: "text.secondary",
                     mb: 4.5,
@@ -797,12 +921,12 @@ export default function LandingPage() {
             <LaptopMockup darkMode={darkMode} />
           </Box>
 
-          <Box id="features" sx={{ py: { xs: 5, md: 8 } }}>
+          <Box id="features" sx={{ py: { xs: 5, md: 8 }, scrollMarginTop: "112px" }}>
             <MotionBox
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.18, margin: "0px 0px -12% 0px" }}
               custom={0}
             >
               <Typography
@@ -836,7 +960,7 @@ export default function LandingPage() {
                   variants={fadeUp}
                   initial="hidden"
                   whileInView="visible"
-                  viewport={{ once: true, amount: 0.25 }}
+                  viewport={{ once: true, amount: 0.16, margin: "0px 0px -10% 0px" }}
                   custom={0.08 + index * 0.08}
                   sx={{
                     flex: 1,
@@ -883,7 +1007,7 @@ export default function LandingPage() {
             </Stack>
           </Box>
 
-          <Box id="how-it-works" sx={{ py: { xs: 7, md: 10 } }}>
+          <Box id="how-it-works" sx={{ py: { xs: 7, md: 10 }, scrollMarginTop: "112px" }}>
             <Stack
               direction={{ xs: "column", lg: "row" }}
               spacing={{ xs: 3, lg: 5 }}
@@ -893,7 +1017,7 @@ export default function LandingPage() {
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.3 }}
+                viewport={{ once: true, amount: 0.16, margin: "0px 0px -12% 0px" }}
                 custom={0}
                 sx={{ flex: 0.95 }}
               >
@@ -944,7 +1068,7 @@ export default function LandingPage() {
                     variants={fadeUp}
                     initial="hidden"
                     whileInView="visible"
-                    viewport={{ once: true, amount: 0.25 }}
+                    viewport={{ once: true, amount: 0.14, margin: "0px 0px -10% 0px" }}
                     custom={0.1 + index * 0.08}
                     sx={{
                       p: { xs: 2.3, md: 2.8 },
