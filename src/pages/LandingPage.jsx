@@ -20,7 +20,6 @@ import {
 import {
   AutoAwesomeRounded,
   DarkModeRounded,
-  GitHub,
   LightModeRounded,
   PsychologyAltRounded,
   ScheduleRounded,
@@ -31,8 +30,6 @@ import { Link } from "react-router-dom"
 
 const MotionBox = motion.create(Box)
 const MotionCard = motion.create(Card)
-
-const githubUrl = "https://github.com/suzannet-menon/TimeMax-Timetable-App"
 
 const features = [
   {
@@ -95,7 +92,7 @@ const laptopBlocks = [
   { time: "18:00", title: "Gym and recovery", tone: "#f97316", width: "54%" },
 ]
 
-const keyboardRows = [14, 13, 12, 9]
+const keyboardRows = [14, 13, 12, 8]
 
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
@@ -188,7 +185,7 @@ function LaptopMockup({ darkMode }) {
         animate={{
           opacity: 1,
           y: [0, -5, 0],
-          rotateX: [-4.8, -3.8, -4.8],
+          rotateX: [-3.2, -2.4, -3.2],
           rotateY: [-7.2, -6.1, -7.2],
         }}
         transition={{
@@ -212,6 +209,8 @@ function LaptopMockup({ darkMode }) {
             background: shellBackground,
             boxShadow:
               "0 42px 110px rgba(15,23,42,0.22), inset 0 1px 0 rgba(255,255,255,0.4)",
+            transform: "perspective(1200px) rotateX(5deg)",
+            transformOrigin: "bottom center",
           }}
         >
           <Box
@@ -595,30 +594,47 @@ function LaptopMockup({ darkMode }) {
 
         <Box
           sx={{
-            position: "relative",
             width: "94%",
-            height: { xs: 58, sm: 76, md: 94 },
+            height: { xs: 8, md: 10 },
             mx: "auto",
-            mt: { xs: -0.15, sm: -0.25 },
-            transform: "perspective(760px) rotateX(58deg)",
+            mt: { xs: -0.85, md: -1 },
+            borderRadius: "0 0 999px 999px",
+            background: darkMode
+              ? "linear-gradient(180deg, rgba(75,85,99,0.85), rgba(17,24,39,0.95))"
+              : "linear-gradient(180deg, rgba(203,213,225,0.95), rgba(148,163,184,0.9))",
+            boxShadow: "0 9px 18px rgba(15,23,42,0.16)",
+            position: "relative",
+            zIndex: 2,
+          }}
+        />
+
+        <Box
+          sx={{
+            position: "relative",
+            width: "104%",
+            height: { xs: 56, sm: 76, md: 94 },
+            mx: "auto",
+            ml: "-2%",
+            mt: { xs: -0.45, sm: -0.6 },
+            transform: "perspective(980px) rotateX(54deg)",
             transformOrigin: "top center",
-            borderRadius: "0 0 30px 30px",
+            borderRadius: "0 0 28px 28px",
             background: darkMode
               ? "linear-gradient(180deg, #374151 0%, #111827 100%)"
               : "linear-gradient(180deg, #d8e2ee 0%, #aebaca 100%)",
             boxShadow:
-              "0 24px 44px rgba(15,23,42,0.2), inset 0 1px 0 rgba(255,255,255,0.46)",
+              "0 22px 38px rgba(15,23,42,0.18), inset 0 1px 0 rgba(255,255,255,0.5)",
             overflow: "hidden",
           }}
         >
           <Box
             sx={{
               position: "absolute",
-              inset: { xs: "8px 12% 15px", sm: "10px 13% 18px", md: "12px 14% 22px" },
+              inset: { xs: "7px 8% 12px", sm: "9px 9% 15px", md: "12px 10% 19px" },
               display: "grid",
               gridTemplateRows: "repeat(4, minmax(0, 1fr))",
-              gap: { xs: 0.35, sm: 0.5, md: 0.7 },
-              opacity: darkMode ? 0.78 : 0.86,
+              gap: { xs: 0.4, sm: 0.55, md: 0.75 },
+              opacity: darkMode ? 0.82 : 0.92,
             }}
           >
             {keyboardRows.map((count, rowIndex) => (
@@ -627,7 +643,7 @@ function LaptopMockup({ darkMode }) {
                 sx={{
                   display: "grid",
                   gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))`,
-                  gap: { xs: 0.35, sm: 0.5, md: 0.65 },
+                  gap: { xs: 0.45, sm: 0.6, md: 0.78 },
                   px: rowIndex === 3 ? { xs: 2.2, sm: 3.2, md: 4.4 } : rowIndex * 0.85,
                 }}
               >
@@ -649,10 +665,10 @@ function LaptopMockup({ darkMode }) {
                       borderRadius: { xs: "3px", md: "5px" },
                       background: darkMode
                         ? "linear-gradient(180deg, rgba(15,23,42,0.94), rgba(2,6,23,0.92))"
-                        : "linear-gradient(180deg, rgba(248,250,252,0.96), rgba(203,213,225,0.92))",
+                        : "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(211,223,236,0.94))",
                       boxShadow: darkMode
                         ? "inset 0 1px 0 rgba(255,255,255,0.09), 0 2px 3px rgba(0,0,0,0.28)"
-                        : "inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 3px rgba(15,23,42,0.16)",
+                        : "inset 0 1px 0 rgba(255,255,255,0.96), 0 2px 4px rgba(15,23,42,0.18)",
                     }}
                   />
                 ))}
@@ -667,7 +683,7 @@ function LaptopMockup({ darkMode }) {
               bottom: { xs: 5, sm: 7, md: 9 },
               transform: "translateX(-50%)",
               width: "22%",
-              height: { xs: 10, sm: 13, md: 16 },
+              height: { xs: 8, sm: 10, md: 13 },
               borderRadius: { xs: "5px", md: "8px" },
               bgcolor: darkMode ? "rgba(2,6,23,0.55)" : "rgba(148,163,184,0.34)",
               boxShadow: "inset 0 1px 2px rgba(15,23,42,0.18)",
@@ -717,22 +733,37 @@ export default function LandingPage() {
         />
 
         <AppBar
-          position="sticky"
+          position="fixed"
           elevation={0}
           color="transparent"
           sx={{
-            backdropFilter: "blur(18px)",
-            backgroundColor: darkMode ? "rgba(8,17,31,0.72)" : "rgba(255,255,255,0.72)",
-            borderBottom: `1px solid ${darkMode ? "rgba(148,163,184,0.12)" : "rgba(226,232,240,0.92)"}`,
+            top: 0,
+            zIndex: (theme) => theme.zIndex.drawer + 2,
+            backdropFilter: "blur(26px) saturate(1.45)",
+            background: darkMode
+              ? "linear-gradient(120deg, rgba(8,17,31,0.82), rgba(15,23,42,0.62) 52%, rgba(37,99,235,0.18))"
+              : "linear-gradient(120deg, rgba(255,255,255,0.84), rgba(235,245,255,0.76) 48%, rgba(179,216,255,0.48))",
+            borderBottom: `1px solid ${darkMode ? "rgba(147,197,253,0.2)" : "rgba(147,197,253,0.64)"}`,
+            boxShadow: darkMode
+              ? "0 18px 45px rgba(2,6,23,0.22)"
+              : "0 18px 45px rgba(59,130,246,0.13)",
           }}
         >
           <Container maxWidth="xl">
-            <Toolbar disableGutters sx={{ py: 1.4, gap: 2 }}>
+            <Toolbar
+              disableGutters
+              sx={{
+                minHeight: { xs: 78, md: 88 },
+                py: { xs: 1.6, md: 1.9 },
+                gap: { xs: 1.4, md: 2.2 },
+              }}
+            >
               <Typography
                 variant="h6"
                 sx={{
                   fontFamily: '"Space Mono", monospace',
                   fontWeight: 700,
+                  fontSize: { xs: "1.34rem", md: "1.58rem" },
                   color: "#2563eb",
                   letterSpacing: 0,
                   flexGrow: 1,
@@ -743,13 +774,13 @@ export default function LandingPage() {
 
               <Stack
                 direction="row"
-                spacing={0.6}
+                spacing={0.9}
                 sx={{ display: { xs: "none", md: "flex" }, alignItems: "center" }}
               >
-                <Button color="inherit" href="#features">
+                <Button color="inherit" href="#features" sx={{ fontSize: "1rem", fontWeight: 700 }}>
                   Features
                 </Button>
-                <Button color="inherit" href="#how-it-works">
+                <Button color="inherit" href="#how-it-works" sx={{ fontSize: "1rem", fontWeight: 700 }}>
                   How it Works
                 </Button>
               </Stack>
@@ -759,6 +790,8 @@ export default function LandingPage() {
                 sx={{
                   border: `1px solid ${darkMode ? "rgba(148,163,184,0.16)" : "rgba(226,232,240,1)"}`,
                   bgcolor: darkMode ? "rgba(15,23,42,0.8)" : "rgba(255,255,255,0.9)",
+                  width: 44,
+                  height: 44,
                 }}
               >
                 {darkMode ? <LightModeRounded /> : <DarkModeRounded />}
@@ -770,8 +803,9 @@ export default function LandingPage() {
                 variant="contained"
                 sx={{
                   px: { xs: 2.4, sm: 3 },
-                  py: 1.15,
+                  py: 1.25,
                   borderRadius: 999,
+                  fontSize: { xs: "0.92rem", md: "1rem" },
                   boxShadow: "0 16px 34px rgba(37,99,235,0.24)",
                 }}
               >
@@ -781,7 +815,7 @@ export default function LandingPage() {
           </Container>
         </AppBar>
 
-        <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1 }}>
+        <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1, pt: { xs: "78px", md: "88px" } }}>
           <Box
             sx={{
               display: "grid",
@@ -796,23 +830,6 @@ export default function LandingPage() {
             }}
           >
             <Box>
-              <MotionBox variants={fadeUp} initial="hidden" animate="visible" custom={0}>
-                <Chip
-                  icon={<AutoAwesomeRounded sx={{ color: "#2563eb !important" }} />}
-                  label="Powered by Google Gemini"
-                  sx={{
-                    mb: 3,
-                    px: 1,
-                    py: 2.35,
-                    borderRadius: 999,
-                    border: "1px solid rgba(37,99,235,0.16)",
-                    bgcolor: darkMode ? "rgba(15,23,42,0.7)" : "rgba(255,255,255,0.86)",
-                    color: "text.primary",
-                    "& .MuiChip-label": { px: 0.5, fontWeight: 700 },
-                  }}
-                />
-              </MotionBox>
-
               <MotionBox variants={fadeUp} initial="hidden" animate="visible" custom={0.08}>
                 <Typography
                   variant="h1"
@@ -840,42 +857,6 @@ export default function LandingPage() {
                   AI-powered timetable manager that turns your tasks, deadlines, energy levels and
                   commitments into perfect day-by-day schedules.
                 </Typography>
-              </MotionBox>
-
-              <MotionBox variants={fadeUp} initial="hidden" animate="visible" custom={0.24}>
-                <Stack direction={{ xs: "column", sm: "row" }} spacing={1.8} sx={{ mb: 5 }}>
-                  <Button
-                    component={Link}
-                    to="/signup"
-                    variant="contained"
-                    size="large"
-                    sx={{
-                      px: 3.6,
-                      py: 1.55,
-                      borderRadius: 999,
-                      fontSize: "1rem",
-                      boxShadow: "0 18px 38px rgba(37,99,235,0.28)",
-                    }}
-                  >
-                    {"Launch TimeMax ->"}
-                  </Button>
-                  <Button
-                    href={githubUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    variant="outlined"
-                    size="large"
-                    startIcon={<GitHub />}
-                    sx={{
-                      px: 3.2,
-                      py: 1.5,
-                      borderRadius: 999,
-                      borderColor: darkMode ? "rgba(148,163,184,0.24)" : "rgba(37,99,235,0.22)",
-                    }}
-                  >
-                    View on GitHub
-                  </Button>
-                </Stack>
               </MotionBox>
 
               <MotionBox variants={fadeUp} initial="hidden" animate="visible" custom={0.32}>
@@ -1111,6 +1092,29 @@ export default function LandingPage() {
             </Stack>
           </Box>
         </Container>
+
+        <Box
+          component="footer"
+          sx={{
+            position: "relative",
+            zIndex: 1,
+            bgcolor: "#020617",
+            borderTop: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <Container maxWidth="xl">
+            <Typography
+              sx={{
+                py: 2.4,
+                textAlign: "center",
+                color: "rgba(248,250,252,0.72)",
+                fontSize: "0.92rem",
+              }}
+            >
+              Copyright 2026. Built by Suzanne Thomas. All rights reserved.
+            </Typography>
+          </Container>
+        </Box>
       </Box>
     </ThemeProvider>
   )
