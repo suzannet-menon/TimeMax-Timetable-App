@@ -594,8 +594,8 @@ function LaptopMockup({ darkMode }) {
 
         <Box
           sx={{
-            width: "94%",
-            height: { xs: 8, md: 10 },
+            width: "100%",
+            height: { xs: 12, md: 16 },
             mx: "auto",
             mt: { xs: -0.85, md: -1 },
             borderRadius: "0 0 999px 999px",
@@ -840,7 +840,7 @@ export default function LandingPage() {
                     mb: 3,
                   }}
                 >
-                  Master Your Time with AI
+                  Plan Your Week Around Reality
                 </Typography>
               </MotionBox>
 
@@ -854,8 +854,7 @@ export default function LandingPage() {
                     mb: 4.5,
                   }}
                 >
-                  AI-powered timetable manager that turns your tasks, deadlines, energy levels and
-                  commitments into perfect day-by-day schedules.
+                  Most planners tell you what to do. TimeMax helps decide when to do it.
                 </Typography>
               </MotionBox>
 
