@@ -151,6 +151,15 @@ function buildTheme(mode) {
 }
 
 function LaptopMockup({ darkMode }) {
+  const todayLabel = React.useMemo(() => {
+    const today = new Date()
+    const weekday = today.toLocaleDateString("en-IN", { weekday: "long" })
+    const month = today.toLocaleDateString("en-IN", { month: "long" })
+    const day = today.toLocaleDateString("en-IN", { day: "numeric" })
+
+    return `${weekday} | ${month} ${day}`
+  }, [])
+
   const screenBackground = darkMode
     ? "linear-gradient(180deg, rgba(9,14,26,0.98) 0%, rgba(15,23,42,1) 100%)"
     : "linear-gradient(180deg, #fcfdff 0%, #eef5ff 100%)"
@@ -290,7 +299,7 @@ function LaptopMockup({ darkMode }) {
                         textOverflow: "ellipsis",
                       }}
                     >
-                      Saturday | April 18
+                      {todayLabel}
                     </Typography>
                     <Typography
                       sx={{
@@ -298,7 +307,6 @@ function LaptopMockup({ darkMode }) {
                         color: "text.secondary",
                       }}
                     >
-                      AI-generated daily flow
                     </Typography>
                   </Box>
 
@@ -840,7 +848,7 @@ export default function LandingPage() {
                     mb: 3,
                   }}
                 >
-                  Plan Your Week Around Reality
+                  Plan your week around reality
                 </Typography>
               </MotionBox>
 

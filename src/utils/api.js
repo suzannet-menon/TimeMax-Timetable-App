@@ -1,7 +1,24 @@
 const APIKEY = import.meta.env.VITE_GEMINI_API_KEY
 const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${APIKEY}`
 
-export const fetchSchedule = async (tasks, focusminutes, commitments, startTime, dateRange) => {
+function extractJson(text) {
+  const cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim()
+
+  try {
+    return JSON.parse(cleaned)
+  } catch {
+    const firstBrace = cleaned.indexOf("{")
+    const lastBrace = cleaned.lastIndexOf("}")
+
+    if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+      throw new Error("Gemini returned a response, but it was not valid schedule JSON.")
+    }
+
+    return JSON.parse(cleaned.slice(firstBrace, lastBrace + 1))
+  }
+}
+
+export const fetchSchedule = async (tasks, focusminutes, commitments, startTime, dateRange, startSource = "current") => {
   if (!APIKEY) throw new Error("API key missing - check .env file")
 
   const now = new Date()
@@ -27,6 +44,7 @@ You are a productivity planner. Build a realistic schedule from ${dateRange.from
 
 Today's date: ${currentDate}
 Schedule starts from: ${startTime} on ${dateRange.from}
+Start-time source: ${startSource === "explicit" ? "The user explicitly mentioned when to begin." : "No explicit begin time was found, so this is the user's real current time rounded to the next planning slot."}
 User's focus window: ${focusminutes} minutes per session.
 
 User's commitments and blocked time:
@@ -37,6 +55,8 @@ ${tasklist}
 
 Rules:
 - Start from ${startTime} on ${dateRange.from}
+- If the user explicitly wrote a begin/start time, use that time instead of real current time
+- If no explicit begin/start time is provided, do not default to 9am; start from the real current time above
 - Plan day by day across the entire date range
 - Only schedule during free windows, never during blocked times
 - Add 5-10 min breaks between focus sessions
@@ -64,15 +84,19 @@ Return ONLY raw JSON, no markdown, no backticks, no explanation.
   const response = await fetch(URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+      },
+    }),
   })
 
-  const data = await response.json()
+  const data = await response.json().catch(() => ({}))
   if (!response.ok) throw new Error(data.error?.message || "Request failed")
 
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
   if (!text) throw new Error("No AI response returned")
 
-  const cleaned = text.replace(/```json/g, "").replace(/```/g, "").trim()
-  return JSON.parse(cleaned)
+  return extractJson(text)
 }

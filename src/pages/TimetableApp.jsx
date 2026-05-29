@@ -59,55 +59,203 @@ function PremiumSection({ title, subtitle, children, action }) {
   )
 }
 
-function createFallbackSchedule(tasks, focusminutes, commitments, availability) {
-  const today = new Date()
-  const dateLabel = today.toLocaleDateString("en-IN", {
+function toDateInputValue(date) {
+  const timezoneOffset = date.getTimezoneOffset() * 60000
+  return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 10)
+}
+
+function formatTimeForSchedule(date) {
+  return date.toLocaleTimeString("en-IN", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  })
+}
+
+function formatDateLabel(date) {
+  return date.toLocaleDateString("en-IN", {
     weekday: "long",
     day: "numeric",
     month: "short",
   })
+}
 
-  const blocks = tasks.slice(0, 5).map((task, index) => ({
-    time: `${9 + index * 2}:00`,
-    duration: `${focusminutes} min`,
-    task: task.taskname,
-    tip:
-      task.energy === "tired"
-        ? "Keep this block lighter and give yourself a short reset after it."
-        : "Use this as a focused work block and avoid context switching.",
-  }))
+function parseDateInput(value) {
+  if (!value) return null
+  const date = new Date(`${value}T00:00:00`)
+  return Number.isNaN(date.getTime()) ? null : date
+}
 
-  if (!blocks.length) {
-    blocks.push(
-      {
-        time: "09:00",
-        duration: `${focusminutes} min`,
-        task: "Planning block",
-        tip: "Add a few tasks and regenerate to see a fuller AI schedule.",
-      },
-      {
-        time: "10:00",
-        duration: "15 min",
-        task: "Break",
-        tip: "Small resets help keep the rest of the plan sustainable.",
-      }
-    )
+function addDays(date, days) {
+  const nextDate = new Date(date)
+  nextDate.setDate(nextDate.getDate() + days)
+  return nextDate
+}
+
+function roundUpToNextQuarter(date) {
+  const nextDate = new Date(date)
+  nextDate.setSeconds(0, 0)
+  const minutes = nextDate.getMinutes()
+  const remainder = minutes % 15
+  if (remainder) nextDate.setMinutes(minutes + (15 - remainder))
+  return nextDate
+}
+
+function normalizeTime(hourText, minuteText, periodText) {
+  let hour = Number(hourText)
+  const minute = minuteText ? Number(minuteText) : 0
+  const period = periodText?.toLowerCase()
+
+  if (period === "pm" && hour < 12) hour += 12
+  if (period === "am" && hour === 12) hour = 0
+  if (hour > 23 || minute > 59) return null
+
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`
+}
+
+function findExplicitStartTime(text) {
+  const startPattern =
+    /\b(?:start|begin|commence)\b(?:\s+(?:my|the|this|schedule|plan|tasks|task|study|work|day|from|at|after|around))*\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/i
+  const match = text.match(startPattern)
+  return match ? normalizeTime(match[1], match[2], match[3]) : null
+}
+
+function getPlanningStart(commitments, availability) {
+  const combinedContext = [commitments, availability].filter(Boolean).join("\n")
+  const explicitStartTime = findExplicitStartTime(combinedContext)
+
+  if (explicitStartTime) {
+    return {
+      startTime: explicitStartTime,
+      source: "explicit",
+    }
   }
 
+  const currentStart = roundUpToNextQuarter(new Date())
   return {
-    riskSummary:
-      "This preview schedule was generated locally because no Gemini response was available. The structure still reflects your current tasks and focus settings.",
+    startTime: `${String(currentStart.getHours()).padStart(2, "0")}:${String(currentStart.getMinutes()).padStart(2, "0")}`,
+    source: "current",
+  }
+}
+
+function getDateRange(tasks) {
+  const today = new Date()
+  const todayValue = toDateInputValue(today)
+  const futureDeadlines = tasks
+    .map((task) => parseDateInput(task.deadline))
+    .filter((date) => date && date >= parseDateInput(todayValue))
+
+  if (!futureDeadlines.length) {
+    return {
+      from: todayValue,
+      to: toDateInputValue(addDays(today, 6)),
+    }
+  }
+
+  const latestDeadline = new Date(Math.max(...futureDeadlines.map((date) => date.getTime())))
+  return {
+    from: todayValue,
+    to: toDateInputValue(latestDeadline),
+  }
+}
+
+function getDatesInRange(dateRange) {
+  const startDate = parseDateInput(dateRange.from)
+  const endDate = parseDateInput(dateRange.to)
+  if (!startDate || !endDate) return []
+
+  const days = []
+  for (let date = new Date(startDate); date <= endDate; date = addDays(date, 1)) {
+    days.push(new Date(date))
+  }
+  return days
+}
+
+function addMinutesToTime(time, minutesToAdd) {
+  const [hours, minutes] = time.split(":").map(Number)
+  const date = new Date()
+  date.setHours(hours, minutes + minutesToAdd, 0, 0)
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`
+}
+
+function getTaskPriority(task, currentDate) {
+  const deadlineDate = parseDateInput(task.deadline)
+  const daysLeft = deadlineDate
+    ? Math.ceil((deadlineDate.getTime() - currentDate.getTime()) / 86400000)
+    : 99
+
+  const effortScore = {
+    high: 0,
+    medium: 1,
+    low: 2,
+  }[task.effort] ?? 1
+
+  return daysLeft * 10 + effortScore
+}
+
+function getTasksForDay(tasks, date, dayIndex) {
+  return [...tasks]
+    .sort((firstTask, secondTask) => getTaskPriority(firstTask, date) - getTaskPriority(secondTask, date))
+    .filter((task, taskIndex) => {
+      const deadlineDate = parseDateInput(task.deadline)
+      if (!deadlineDate) return taskIndex < 5
+      const daysUntilDeadline = Math.ceil((deadlineDate.getTime() - date.getTime()) / 86400000)
+      return daysUntilDeadline >= 0 && (daysUntilDeadline <= 2 || (taskIndex + dayIndex) % 2 === 0)
+    })
+    .slice(0, 6)
+}
+
+function createFallbackSchedule(tasks, focusminutes, commitments, availability, startTime, dateRange, startSource, failureMessage) {
+  const dates = getDatesInRange(dateRange)
+  const days = dates.map((date, dayIndex) => {
+    const dayTasks = getTasksForDay(tasks, date, dayIndex)
+    const blocks = dayTasks.map((task, index) => ({
+      time: formatTimeForSchedule(
+        parseTimeOnDate(date, addMinutesToTime(dayIndex === 0 ? startTime : "09:00", index * (focusminutes + 15)))
+      ),
+      duration: `${focusminutes} min`,
+      task: task.taskname,
+      tip:
+        task.energy === "tired"
+          ? "Keep this block lighter and give yourself a short reset after it."
+          : "Use this as a focused work block and avoid context switching.",
+    }))
+
+    return {
+      date: formatDateLabel(date),
+      schedule: blocks.length
+        ? blocks
+        : [
+            {
+              time: formatTimeForSchedule(parseTimeOnDate(date, dayIndex === 0 ? startTime : "09:00")),
+              duration: "15 min",
+              task: "Review and buffer",
+              tip: "Use this space for spillover work, recovery, or checking what changed.",
+            },
+          ],
+    }
+  })
+
+  const startMessage =
+    startSource === "explicit"
+      ? `The preview starts at the time you explicitly mentioned: ${startTime}.`
+      : `The preview starts from your current time, rounded to the next planning slot: ${startTime}.`
+
+  return {
+    riskSummary: `This preview schedule was generated locally because Gemini was unavailable${failureMessage ? `: ${failureMessage}` : ""}. ${startMessage} It covers ${dateRange.from} to ${dateRange.to}.`,
     warnings: [
       commitments.trim() ? "Your commitments were considered in the summary." : "Add commitments for tighter planning.",
       availability.trim() ? "Availability windows were included in the preview context." : "Add availability windows for more precise time placement.",
     ],
-    days: [
-      {
-        date: dateLabel,
-        schedule: blocks,
-      },
-    ],
+    days,
   }
+}
+
+function parseTimeOnDate(date, time) {
+  const [hours, minutes] = time.split(":").map(Number)
+  const nextDate = new Date(date)
+  nextDate.setHours(hours, minutes, 0, 0)
+  return nextDate
 }
 
 function TimetableApp() {
@@ -173,21 +321,34 @@ function TimetableApp() {
     setLoading(true)
     setError("")
 
-    const today = new Date().toISOString().slice(0, 10)
+    const dateRange = getDateRange(tasks)
+    const { startTime, source: startSource } = getPlanningStart(commitments, availability)
 
     try {
       const result = await fetchSchedule(
         tasks,
         focusminutes,
         [commitments, availability].filter(Boolean).join("\n\n"),
-        "09:00",
-        { from: today, to: today }
+        startTime,
+        dateRange,
+        startSource
       )
       startTransition(() => setSchedule(result))
     } catch (requestError) {
       setError(requestError.message || "TimeMax could not reach Gemini, so a local preview was created instead.")
       startTransition(() =>
-        setSchedule(createFallbackSchedule(tasks, focusminutes, commitments, availability))
+        setSchedule(
+          createFallbackSchedule(
+            tasks,
+            focusminutes,
+            commitments,
+            availability,
+            startTime,
+            dateRange,
+            startSource,
+            requestError.message
+          )
+        )
       )
     } finally {
       setLoading(false)
@@ -309,7 +470,7 @@ function TimetableApp() {
                 </Typography>
                 <Typography sx={{ color: "rgba(226,232,240,0.82)", lineHeight: 1.85 }}>
                   Add tasks, commitments, and focus length. Then let TimeMax map everything into a
-                  polished daily schedule.
+                  polished day-by-day schedule.
                 </Typography>
               </Box>
 
@@ -366,44 +527,6 @@ function TimetableApp() {
                 </Stack>
               </PremiumSection>
 
-              <PremiumSection
-                title="Generated schedule"
-                subtitle="Create a day plan with AI, or fall back to a polished local preview if the API is unavailable."
-                action={
-                  <Button
-                    variant="contained"
-                    onClick={generateSchedule}
-                    disabled={loading}
-                    startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <AutoAwesomeRoundedIcon />}
-                    sx={{
-                      borderRadius: 999,
-                      px: 2.6,
-                      py: 1.15,
-                      fontFamily: '"Space Mono", monospace',
-                      boxShadow: "0 14px 26px rgba(37,99,235,0.22)",
-                    }}
-                  >
-                    {loading ? "Generating..." : "Generate schedule"}
-                  </Button>
-                }
-              >
-                <Schedule schedule={schedule} />
-                {!schedule ? (
-                  <Box
-                    sx={{
-                      p: 3.2,
-                      borderRadius: 5,
-                      border: "1px dashed rgba(148,163,184,0.35)",
-                      bgcolor: "rgba(248,250,252,0.72)",
-                    }}
-                  >
-                    <Typography sx={{ color: "text.secondary", lineHeight: 1.8 }}>
-                      Your generated schedule will appear here once you add a few tasks and click
-                      generate.
-                    </Typography>
-                  </Box>
-                ) : null}
-              </PremiumSection>
             </Stack>
 
             <Stack spacing={3}>
@@ -422,6 +545,45 @@ function TimetableApp() {
               </PremiumSection>
             </Stack>
           </Box>
+
+          <PremiumSection
+            title="Generated schedule"
+            subtitle="Generate a full day-by-day plan. TimeMax starts from your current time unless you explicitly write a start time such as 'start at 2 pm'."
+            action={
+              <Button
+                variant="contained"
+                onClick={generateSchedule}
+                disabled={loading}
+                startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <AutoAwesomeRoundedIcon />}
+                sx={{
+                  borderRadius: 999,
+                  px: 2.6,
+                  py: 1.15,
+                  fontFamily: '"Space Mono", monospace',
+                  boxShadow: "0 14px 26px rgba(37,99,235,0.22)",
+                }}
+              >
+                {loading ? "Generating..." : "Generate schedule"}
+              </Button>
+            }
+          >
+            <Schedule schedule={schedule} />
+            {!schedule ? (
+              <Box
+                sx={{
+                  p: 3.2,
+                  borderRadius: 5,
+                  border: "1px dashed rgba(148,163,184,0.35)",
+                  bgcolor: "rgba(248,250,252,0.72)",
+                }}
+              >
+                <Typography sx={{ color: "text.secondary", lineHeight: 1.8 }}>
+                  Your generated schedule will use this full-width space once you add a few tasks and click
+                  generate.
+                </Typography>
+              </Box>
+            ) : null}
+          </PremiumSection>
         </Stack>
       </Container>
     </Box>
