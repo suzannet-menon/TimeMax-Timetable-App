@@ -1105,8 +1105,8 @@ export default function LandingPage() {
           sx={{
             position: "relative",
             zIndex: 1,
-            bgcolor: "#020617",
-            borderTop: "1px solid rgba(255,255,255,0.08)",
+            bgcolor: darkMode ? "#ffffff" : "#020617",
+            borderTop: `1px solid ${darkMode ? "rgba(15,23,42,0.1)" : "rgba(255,255,255,0.08)"}`,
           }}
         >
           <Container maxWidth="xl">
@@ -1114,11 +1114,11 @@ export default function LandingPage() {
               sx={{
                 py: 2.4,
                 textAlign: "center",
-                color: "rgba(248,250,252,0.72)",
+                color: darkMode ? "#020617" : "rgba(248,250,252,0.72)",
                 fontSize: "0.92rem",
               }}
             >
-              Copyright 2026. Built by Suzanne Thomas. All rights reserved.
+              © 2026. Built by Suzanne Daniel Thomas. All rights reserved.
             </Typography>
           </Container>
         </Box>
