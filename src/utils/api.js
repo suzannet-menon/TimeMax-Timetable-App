@@ -1,6 +1,13 @@
 const APIKEY = import.meta.env.VITE_GEMINI_API_KEY
 const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${APIKEY}`
 
+function parseDateInput(value) {
+  if (!value) return null
+  const [year, month, day] = value.split("-").map(Number)
+  const date = new Date(year, month - 1, day)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
 function extractJson(text) {
   const cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim()
 
@@ -31,8 +38,9 @@ export const fetchSchedule = async (tasks, focusminutes, commitments, startTime,
 
   const tasklist = tasks
     .map((task) => {
-      const daysleft = task.deadline
-        ? Math.ceil((new Date(task.deadline) - new Date()) / 86400000)
+      const deadlineDate = parseDateInput(task.deadline)
+      const daysleft = deadlineDate
+        ? Math.ceil((deadlineDate - new Date()) / 86400000)
         : "unknown"
 
       return `- "${task.taskname}" | effort: ${task.effort} | energy needed: ${task.energy} | deadline in ${daysleft} days`

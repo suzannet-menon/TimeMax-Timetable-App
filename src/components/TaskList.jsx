@@ -20,13 +20,21 @@ import { AnimatePresence, motion } from "framer-motion"
 
 const MotionDiv = motion.create("div")
 
+function parseDateInput(value) {
+  if (!value) return null
+  const [year, month, day] = value.split("-").map(Number)
+  const date = new Date(year, month - 1, day)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
 function TaskList({ tasks, removetask, edittask }) {
   const [editingIndex, setEditingIndex] = useState(null)
   const [editData, setEditData] = useState({})
 
   const getDaysLeft = (deadline) => {
-    if (!deadline) return null
-    return Math.ceil((new Date(deadline) - new Date()) / 86400000)
+    const deadlineDate = parseDateInput(deadline)
+    if (!deadlineDate) return null
+    return Math.ceil((deadlineDate - new Date()) / 86400000)
   }
 
   const getDeadlineLabel = (deadline) => {

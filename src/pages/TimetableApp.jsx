@@ -1,4 +1,4 @@
-import { startTransition, useMemo, useState } from "react"
+import { startTransition, useEffect, useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import {
   Alert,
@@ -7,13 +7,21 @@ import {
   Chip,
   CircularProgress,
   Container,
+  CssBaseline,
   Divider,
+  IconButton,
   Paper,
   Stack,
+  ThemeProvider,
+  Tooltip,
   Typography,
+  createTheme,
 } from "@mui/material"
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded"
+import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded"
+import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded"
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded"
+import RestartAltRoundedIcon from "@mui/icons-material/RestartAltRounded"
 import TaskAltRoundedIcon from "@mui/icons-material/TaskAltRounded"
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded"
 import FocusPicker from "../components/FocusPicker"
@@ -24,16 +32,67 @@ import AvailabilityForm from "../components/AvailabilityForm"
 import Schedule from "../components/Schedule"
 import { fetchSchedule } from "../utils/api"
 
-function PremiumSection({ title, subtitle, children, action }) {
+function buildTimetableTheme(mode) {
+  return createTheme({
+    palette: {
+      mode,
+      primary: { main: "#2563eb" },
+      background: {
+        default: mode === "light" ? "#f8fbff" : "#08111f",
+        paper: mode === "light" ? "#ffffff" : "#0f172a",
+      },
+      text: {
+        primary: mode === "light" ? "#0f172a" : "#f8fafc",
+        secondary: mode === "light" ? "#475569" : "#94a3b8",
+      },
+    },
+    shape: { borderRadius: 8 },
+    typography: {
+      fontFamily: '"Roboto", sans-serif',
+      h3: {
+        fontFamily: '"Space Mono", monospace',
+        fontWeight: 700,
+        letterSpacing: 0,
+      },
+      h6: {
+        fontFamily: '"Space Mono", monospace',
+        fontWeight: 700,
+      },
+      button: {
+        textTransform: "none",
+        fontWeight: 600,
+      },
+    },
+  })
+}
+
+function PremiumSection({ title, subtitle, children, action, darkMode }) {
   return (
     <Paper
       elevation={0}
       sx={{
         p: { xs: 2.4, md: 3 },
-        borderRadius: 6,
-        border: "1px solid rgba(226,232,240,0.95)",
-        background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.95) 100%)",
-        boxShadow: "0 22px 50px rgba(15,23,42,0.05)",
+        borderRadius: "8px",
+        border: `1px solid ${darkMode ? "rgba(148,163,184,0.12)" : "rgba(226,232,240,0.95)"}`,
+        background: darkMode
+          ? "linear-gradient(180deg, rgba(15,23,42,0.88) 0%, rgba(11,18,32,0.92) 100%)"
+          : "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.95) 100%)",
+        boxShadow: darkMode ? "none" : "0 22px 50px rgba(15,23,42,0.05)",
+        color: "text.primary",
+        "& .MuiCard-root": {
+          borderRadius: "8px",
+          bgcolor: darkMode ? "rgba(15,23,42,0.7)" : "#ffffff",
+          borderColor: darkMode ? "rgba(148,163,184,0.16)" : "rgba(226,232,240,0.95)",
+        },
+        "& .MuiOutlinedInput-root": {
+          borderRadius: "8px",
+          bgcolor: darkMode ? "rgba(2,6,23,0.22)" : "#ffffff",
+        },
+        "& input[type='date']::-webkit-calendar-picker-indicator": {
+          cursor: "pointer",
+          filter: darkMode ? "invert(1)" : "none",
+          opacity: darkMode ? 0.86 : 0.72,
+        },
       }}
     >
       <Stack
@@ -82,7 +141,8 @@ function formatDateLabel(date) {
 
 function parseDateInput(value) {
   if (!value) return null
-  const date = new Date(`${value}T00:00:00`)
+  const [year, month, day] = value.split("-").map(Number)
+  const date = new Date(year, month - 1, day)
   return Number.isNaN(date.getTime()) ? null : date
 }
 
@@ -251,6 +311,19 @@ function createFallbackSchedule(tasks, focusminutes, commitments, availability, 
   }
 }
 
+function normalizeScheduleDates(schedule, dateRange) {
+  const dates = getDatesInRange(dateRange)
+  if (!schedule?.days?.length || !dates.length) return schedule
+
+  return {
+    ...schedule,
+    days: schedule.days.map((day, index) => ({
+      ...day,
+      date: dates[index] ? formatDateLabel(dates[index]) : day.date,
+    })),
+  }
+}
+
 function parseTimeOnDate(date, time) {
   const [hours, minutes] = time.split(":").map(Number)
   const nextDate = new Date(date)
@@ -265,6 +338,8 @@ function TimetableApp() {
     return raw ? JSON.parse(raw) : null
   }, [])
 
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem("timemax-app-dark-mode") === "true")
+  const theme = useMemo(() => buildTimetableTheme(darkMode ? "dark" : "light"), [darkMode])
   const [taskname, setTaskname] = useState("")
   const [deadline, setDeadline] = useState("")
   const [effort, setEffort] = useState("medium")
@@ -276,6 +351,10 @@ function TimetableApp() {
   const [schedule, setSchedule] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  useEffect(() => {
+    localStorage.setItem("timemax-app-dark-mode", String(darkMode))
+  }, [darkMode])
 
   const addtask = () => {
     if (!taskname.trim()) {
@@ -306,6 +385,19 @@ function TimetableApp() {
     setTasks((current) => current.map((task, itemIndex) => (itemIndex === index ? nextTask : task)))
   }
 
+  const resetWorkspace = () => {
+    setTaskname("")
+    setDeadline("")
+    setEffort("medium")
+    setEnergy("moderate")
+    setTasks([])
+    setCommitments("")
+    setAvailability("")
+    setFocusminutes(45)
+    setSchedule(null)
+    setError("")
+  }
+
   const handleLogout = () => {
     localStorage.removeItem("timemax-auth")
     localStorage.removeItem("timemax-session-user")
@@ -333,7 +425,7 @@ function TimetableApp() {
         dateRange,
         startSource
       )
-      startTransition(() => setSchedule(result))
+      startTransition(() => setSchedule(normalizeScheduleDates(result, dateRange)))
     } catch (requestError) {
       setError(requestError.message || "TimeMax could not reach Gemini, so a local preview was created instead.")
       startTransition(() =>
@@ -356,11 +448,15 @@ function TimetableApp() {
   }
 
   return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
     <Box
       sx={{
         minHeight: "100vh",
-        background:
-          "linear-gradient(180deg, #ffffff 0%, #f7faff 42%, #eef4ff 100%)",
+        color: "text.primary",
+        background: darkMode
+          ? "linear-gradient(180deg, #08111f 0%, #0b1528 40%, #09111d 100%)"
+          : "linear-gradient(180deg, #ffffff 0%, #f7faff 42%, #eef4ff 100%)",
       }}
     >
       <Box
@@ -369,8 +465,10 @@ function TimetableApp() {
           top: 0,
           zIndex: 10,
           backdropFilter: "blur(18px)",
-          backgroundColor: "rgba(255,255,255,0.76)",
-          borderBottom: "1px solid rgba(226,232,240,0.92)",
+          background: darkMode
+            ? "linear-gradient(120deg, rgba(8,17,31,0.82), rgba(15,23,42,0.62) 52%, rgba(37,99,235,0.18))"
+            : "rgba(255,255,255,0.76)",
+          borderBottom: `1px solid ${darkMode ? "rgba(147,197,253,0.2)" : "rgba(226,232,240,0.92)"}`,
         }}
       >
         <Container maxWidth="xl" sx={{ py: 1.8 }}>
@@ -398,8 +496,8 @@ function TimetableApp() {
                 <Chip
                   label={`Hi, ${sessionUser.name}`}
                   sx={{
-                    bgcolor: "rgba(37,99,235,0.08)",
-                    color: "#1d4ed8",
+                    bgcolor: darkMode ? "rgba(37,99,235,0.16)" : "rgba(37,99,235,0.08)",
+                    color: darkMode ? "#bfdbfe" : "#1d4ed8",
                     fontWeight: 700,
                   }}
                 />
@@ -408,7 +506,11 @@ function TimetableApp() {
                 variant="outlined"
                 startIcon={<LogoutRoundedIcon />}
                 onClick={handleLogout}
-                sx={{ borderRadius: 999 }}
+                sx={{
+                  borderRadius: 999,
+                  borderColor: darkMode ? "rgba(147,197,253,0.38)" : undefined,
+                  color: darkMode ? "#bfdbfe" : undefined,
+                }}
               >
                 Logout
               </Button>
@@ -423,8 +525,8 @@ function TimetableApp() {
             elevation={0}
             sx={{
               p: { xs: 2.5, md: 3.2 },
-              borderRadius: 7,
-              border: "1px solid rgba(226,232,240,0.95)",
+              borderRadius: "8px",
+              border: `1px solid ${darkMode ? "rgba(147,197,253,0.18)" : "rgba(226,232,240,0.95)"}`,
               background:
                 "linear-gradient(135deg, rgba(15,23,42,0.98) 0%, rgba(30,41,59,0.96) 100%)",
               color: "white",
@@ -463,7 +565,7 @@ function TimetableApp() {
                 </Typography>
               </Box>
 
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={1.2}>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1.2} alignItems={{ xs: "stretch", sm: "center" }}>
                 <Chip
                   icon={<TaskAltRoundedIcon />}
                   label={`${tasks.length} task${tasks.length === 1 ? "" : "s"} added`}
@@ -474,6 +576,24 @@ function TimetableApp() {
                   label={`${focusminutes} min focus blocks`}
                   sx={{ bgcolor: "rgba(255,255,255,0.08)", color: "white" }}
                 />
+                <Tooltip title={darkMode ? "Switch to light mode" : "Switch to dark mode"}>
+                  <IconButton
+                    onClick={() => setDarkMode((value) => !value)}
+                    sx={{
+                      width: 34,
+                      height: 34,
+                      border: "1px solid rgba(255,255,255,0.14)",
+                      bgcolor: "rgba(255,255,255,0.08)",
+                      color: "#bfdbfe",
+                      alignSelf: { xs: "flex-start", sm: "center" },
+                      "&:hover": {
+                        bgcolor: "rgba(255,255,255,0.14)",
+                      },
+                    }}
+                  >
+                    {darkMode ? <LightModeRoundedIcon sx={{ fontSize: 18 }} /> : <DarkModeRoundedIcon sx={{ fontSize: 18 }} />}
+                  </IconButton>
+                </Tooltip>
               </Stack>
             </Stack>
           </Paper>
@@ -491,6 +611,7 @@ function TimetableApp() {
               <PremiumSection
                 title="Focus settings"
                 subtitle="Choose how long a good work session should feel for this plan."
+                darkMode={darkMode}
               >
                 <FocusPicker focusminutes={focusminutes} setFocusminutes={setFocusminutes} />
               </PremiumSection>
@@ -498,6 +619,7 @@ function TimetableApp() {
               <PremiumSection
                 title="Tasks"
                 subtitle="Describe your workload clearly so the schedule can prioritize it well."
+                darkMode={darkMode}
               >
                 <Stack spacing={3}>
                   <TaskForm
@@ -522,6 +644,7 @@ function TimetableApp() {
               <PremiumSection
                 title="Commitments"
                 subtitle="Tell TimeMax what parts of the day are already spoken for."
+                darkMode={darkMode}
               >
                 <CommitmentsForm commitments={commitments} setCommitments={setCommitments} />
               </PremiumSection>
@@ -529,6 +652,7 @@ function TimetableApp() {
               <PremiumSection
                 title="Availability"
                 subtitle="Optional detail for tighter scheduling and better placement."
+                darkMode={darkMode}
               >
                 <AvailabilityForm availability={availability} setAvailability={setAvailability} />
               </PremiumSection>
@@ -538,22 +662,39 @@ function TimetableApp() {
           <PremiumSection
             title="Generated schedule"
             subtitle="Generate a full day-by-day plan. TimeMax starts from your current time unless you explicitly write a start time such as 'start at 2 pm'."
+            darkMode={darkMode}
             action={
-              <Button
-                variant="contained"
-                onClick={generateSchedule}
-                disabled={loading}
-                startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <AutoAwesomeRoundedIcon />}
-                sx={{
-                  borderRadius: 999,
-                  px: 2.6,
-                  py: 1.15,
-                  fontFamily: '"Space Mono", monospace',
-                  boxShadow: "0 14px 26px rgba(37,99,235,0.22)",
-                }}
-              >
-                {loading ? "Generating..." : "Generate schedule"}
-              </Button>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ width: { xs: "100%", sm: "auto" } }}>
+                <Button
+                  variant="outlined"
+                  onClick={resetWorkspace}
+                  disabled={loading}
+                  startIcon={<RestartAltRoundedIcon />}
+                  sx={{
+                    borderRadius: "8px",
+                    px: 2.2,
+                    py: 1.15,
+                    fontFamily: '"Space Mono", monospace',
+                  }}
+                >
+                  Reset
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={generateSchedule}
+                  disabled={loading}
+                  startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <AutoAwesomeRoundedIcon />}
+                  sx={{
+                    borderRadius: "8px",
+                    px: 2.6,
+                    py: 1.15,
+                    fontFamily: '"Space Mono", monospace',
+                    boxShadow: "0 14px 26px rgba(37,99,235,0.22)",
+                  }}
+                >
+                  {loading ? "Generating..." : "Generate schedule"}
+                </Button>
+              </Stack>
             }
           >
             <Schedule schedule={schedule} />
@@ -561,9 +702,9 @@ function TimetableApp() {
               <Box
                 sx={{
                   p: 3.2,
-                  borderRadius: 5,
-                  border: "1px dashed rgba(148,163,184,0.35)",
-                  bgcolor: "rgba(248,250,252,0.72)",
+                  borderRadius: "8px",
+                  border: `1px dashed ${darkMode ? "rgba(148,163,184,0.28)" : "rgba(148,163,184,0.35)"}`,
+                  bgcolor: darkMode ? "rgba(2,6,23,0.22)" : "rgba(248,250,252,0.72)",
                 }}
               >
                 <Typography sx={{ color: "text.secondary", lineHeight: 1.8 }}>
@@ -576,6 +717,7 @@ function TimetableApp() {
         </Stack>
       </Container>
     </Box>
+    </ThemeProvider>
   )
 }
 

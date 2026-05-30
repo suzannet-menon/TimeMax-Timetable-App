@@ -9,6 +9,13 @@ import { motion } from "framer-motion"
 
 const MotionDiv = motion.create("div")
 
+function parseDateInput(value) {
+  if (!value) return null
+  const [year, month, day] = value.split("-").map(Number)
+  const date = new Date(year, month - 1, day)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
 function TaskForm({
   taskname,
   setTaskname,
@@ -20,7 +27,8 @@ function TaskForm({
   setEnergy,
   addtask,
 }) {
-  const daysLeft = deadline ? Math.ceil((new Date(deadline) - new Date()) / 86400000) : null
+  const deadlineDate = parseDateInput(deadline)
+  const daysLeft = deadlineDate ? Math.ceil((deadlineDate - new Date()) / 86400000) : null
 
   const deadlineColor =
     daysLeft === null
