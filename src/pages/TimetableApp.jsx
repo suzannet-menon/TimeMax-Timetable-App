@@ -265,21 +265,48 @@ function getTasksForDay(tasks, date, dayIndex) {
     .slice(0, 6)
 }
 
-function createFallbackSchedule(tasks, focusminutes, commitments, availability, startTime, dateRange, startSource, failureMessage) {
-  const dates = getDatesInRange(dateRange)
-  const days = dates.map((date, dayIndex) => {
-    const dayTasks = getTasksForDay(tasks, date, dayIndex)
-    const blocks = dayTasks.map((task, index) => ({
+function getSessionCount(task) {
+  return {
+    low: 1,
+    medium: 2,
+    high: 3,
+  }[task.effort] ?? 2
+}
+
+function buildFallbackBlocksForDay(tasks, date, dayIndex, startTime, focusminutes) {
+  const dayTasks = getTasksForDay(tasks, date, dayIndex)
+  const sessionTasks = dayTasks.flatMap((task) =>
+    Array.from({ length: getSessionCount(task) }, (_, sessionIndex) => ({
+      ...task,
+      sessionIndex,
+    }))
+  )
+  const plannedSessions = sessionTasks.slice(0, 6)
+  const firstTime = dayIndex === 0 ? startTime : "09:00"
+
+  return plannedSessions.map((task, index) => {
+    const needsSessionLabel = getSessionCount(task) > 1
+
+    return {
       time: formatTimeForSchedule(
-        parseTimeOnDate(date, addMinutesToTime(dayIndex === 0 ? startTime : "09:00", index * (focusminutes + 15)))
+        parseTimeOnDate(date, addMinutesToTime(firstTime, index * (focusminutes + 15)))
       ),
       duration: `${focusminutes} min`,
-      task: task.taskname,
+      task: needsSessionLabel ? `${task.taskname} - session ${task.sessionIndex + 1}` : task.taskname,
       tip:
         task.energy === "tired"
           ? "Keep this block lighter and give yourself a short reset after it."
-          : "Use this as a focused work block and avoid context switching.",
-    }))
+          : task.sessionIndex > 0
+            ? "Continue from the previous block and finish one clear sub-step."
+            : "Use this as a focused work block and avoid context switching.",
+    }
+  })
+}
+
+function createFallbackSchedule(tasks, focusminutes, commitments, availability, startTime, dateRange, startSource, failureMessage) {
+  const dates = getDatesInRange(dateRange)
+  const days = dates.map((date, dayIndex) => {
+    const blocks = buildFallbackBlocksForDay(tasks, date, dayIndex, startTime, focusminutes)
 
     return {
       date: formatDateLabel(date),
@@ -415,12 +442,16 @@ function TimetableApp() {
 
     const dateRange = getDateRange(tasks)
     const { startTime, source: startSource } = getPlanningStart(commitments, availability)
+    const scheduleContext = [
+      `Commitments and blocked time:\n${commitments.trim() || "Not specified."}`,
+      `Availability and free windows:\n${availability.trim() || "Not specified."}`,
+    ].join("\n\n")
 
     try {
       const result = await fetchSchedule(
         tasks,
         focusminutes,
-        [commitments, availability].filter(Boolean).join("\n\n"),
+        scheduleContext,
         startTime,
         dateRange,
         startSource
