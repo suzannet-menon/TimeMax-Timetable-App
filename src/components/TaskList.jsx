@@ -80,8 +80,8 @@ function TaskList({ tasks, removetask, edittask }) {
           sx={{
             p: 3.5,
             borderRadius: 5,
-            border: "1px dashed rgba(148,163,184,0.35)",
-            bgcolor: "rgba(248,250,252,0.72)",
+            border: "1px dashed rgb(50, 128, 207)",
+            bgcolor: "rgba(255, 255, 255, 0.93)",
             textAlign: "center",
           }}
         >
