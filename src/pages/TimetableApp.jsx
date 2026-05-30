@@ -446,31 +446,20 @@ function TimetableApp() {
               spacing={3}
               sx={{ position: "relative", zIndex: 1 }}
             >
-              <Box sx={{ maxWidth: 760 }}>
-                <Chip
-                  icon={<AutoAwesomeRoundedIcon sx={{ color: "#60a5fa !important" }} />}
-                  label="AI-powered day design"
-                  sx={{
-                    mb: 2.2,
-                    bgcolor: "rgba(96,165,250,0.12)",
-                    color: "#bfdbfe",
-                    fontWeight: 700,
-                  }}
-                />
+              <Box sx={{ maxWidth: 900 }}>
                 <Typography
                   variant="h3"
                   sx={{
                     fontFamily: '"Space Mono", monospace',
-                    fontWeight: 700,
+                    fontWeight: 650,
                     letterSpacing: "-0.04em",
                     mb: 1.4,
                   }}
                 >
                   Build a timetable that actually fits your life
                 </Typography>
-                <Typography sx={{ color: "rgba(226,232,240,0.82)", lineHeight: 1.85 }}>
-                  Add tasks, commitments, and focus length. Then let TimeMax map everything into a
-                  polished day-by-day schedule.
+                <Typography sx={{ color: "rgba(226,232,240,0.82)", lineHeight: 1.2 }}>
+                  Add tasks, commitments, and focus length and let TimeMax map everything into a polished day-by-day schedule.
                 </Typography>
               </Box>
 
