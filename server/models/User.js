@@ -1,3 +1,5 @@
+//defines the shape of a User document in MongoDB, and gives you a JS interface to work with it.
+
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -7,4 +9,4 @@ const userSchema = new mongoose.Schema({
     createdAt: {type: Date, default:Date.now}
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema); //makes this model importable elsewhere: const User = require('../models/User') in your routes.
